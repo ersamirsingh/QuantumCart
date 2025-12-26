@@ -1,0 +1,86 @@
+# Node modules
+/node_modules
+/.pnp
+.pnp.js
+yarn.lock
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+**/.env*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage and test reports
+coverage/
+.nyc_output
+jest-coverage/
+
+# Build outputs
+dist/
+build/
+lib/
+lib-cov/
+.esbuild/
+.next/
+
+# IDEs and editors
+.vscode/
+*.code-workspace
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Debug files
+.debug/
+*.tsbuildinfo
+
+# npm / pnpm / yarn cache
+.npm/
+.yarn/*
+.pnpm-store/
+
+# Uploads, user files
+/uploads
+
+# Local database data
+/data/db
+
+# SSL / certificates
+*.pem
+*.key
+*.crt
+
+# Optional caches
+.cache/
+*.eslintcache
+*.prettiercache
+
+# REPL history
+.node_repl_history
+
+# npm pack output
+*.tgz
+
+# TypeScript specific
+*.tsbuildinfo
+*.d.ts.map
