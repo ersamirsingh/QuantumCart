@@ -1,21 +1,24 @@
-import { Schema, Document, model } from 'mongoose'
-
+import { Schema, Document, model } from 'mongoose';
 
 interface IUser extends Document {
-   name: string,
-   email: string,
-   password: string,
-   isAdmin: boolean,
-   pic: string
+   firstName: string;
+   lastName: string;
+   emailId: string;
+   password: string;
+   pic: string;
+   cart: string[];
 }
 
-
-const userSchmea :Schema<IUser> = new Schema({
-   name: {
+const userSchema: Schema<IUser> = new Schema({
+   firstName: {
       type: String,
       required: true,
    },
-   email: {
+   lastName: {
+      type: String,
+      required: true,
+   },
+   emailId: {
       type: String,
       required: true,
       unique: true,
@@ -24,19 +27,18 @@ const userSchmea :Schema<IUser> = new Schema({
       type: String,
       required: true,
    },
-   isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
-   },
    pic: {
       type: String,
       required: true,
       default: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
    },
+   cart: {
+      type: [String],
+      required: true,
+      default: [],
+   },
+}, { timestamps: true });
 
-}, {timestamps: true})
+const User = model<IUser>('user', userSchema);
 
-
-const User = model<IUser>("user", userSchmea);
-export default User
+export default User;
