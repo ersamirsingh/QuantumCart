@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticateUser from "../middleware/authenticateUser";
-import { userInfo } from "../controllers/userController";
+import { userInfo, updateUserInfo } from "../controllers/userController";
 
 
 
@@ -8,6 +8,7 @@ const userRouter: Router = Router();
 
 
 userRouter.get('/info', authenticateUser, userInfo)
+userRouter.patch('/update', authenticateUser, updateUserInfo)
 
 
 export default userRouter

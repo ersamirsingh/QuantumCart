@@ -11,7 +11,7 @@ import { redisClient } from "../config/Redis";
 const Register = async ( req: Request, res: Response): Promise<Response> => {
 
    try {
-      const { name, email, password } = req.body || {};
+      const { name, email, password, role } = req.body || {};
 
       if (!name || !email || !password) {
          return res.status(400).json({
@@ -38,7 +38,7 @@ const Register = async ( req: Request, res: Response): Promise<Response> => {
          name,
          email,
          password: hashedPassword,
-         role: UserRole.CUSTOMER,
+         role: role ? role : UserRole.CUSTOMER,
       });
 
       const payload: JwtPayload = {
@@ -182,4 +182,32 @@ const Logout = async (req: Request, res: Response) => {
 
 
 
-export { Register, Login, Logout }
+const deleteUser = async (req: Request, res: Response) => {
+
+   try {
+
+      const user = res.locals.user;
+      if (!user) {
+         return res.status(404).json({
+            message: "User not found",
+         });
+      }
+
+      await redisClient.del(`Token:${req.cookies.Token}`)
+
+      await User.findByIdAndDelete(user._id);
+      res.status(200).json({
+         success: true,
+         message: "User deleted successfully",
+      })
+   }
+   catch(err){
+      return res.status(500).json({
+         message: err instanceof Error ?err.message : "Internal server error"
+      })
+   }
+}
+
+
+
+export { Register, Login, Logout, deleteUser }
