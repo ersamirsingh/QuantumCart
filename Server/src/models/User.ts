@@ -1,44 +1,29 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, model, Document } from "mongoose";
 
-interface IUser extends Document {
-   firstName: string;
-   lastName: string;
-   emailId: string;
-   password: string;
-   pic: string;
-   cart: string[];
+export enum UserRole {
+   CUSTOMER = "CUSTOMER",
+   SELLER = "SELLER",
+   ADMIN = "ADMIN",
 }
 
-const userSchema: Schema<IUser> = new Schema({
-   firstName: {
+export interface IUser extends Document {
+   name: string;
+   email: string;
+   password: string;
+   role: UserRole;
+   isVerified: boolean;
+}
+
+const UserSchema = new Schema<IUser>({
+   name: { type: String, required: true },
+   email: { type: String, required: true, unique: true, index: true },
+   password: { type: String, required: true },
+   role: {
       type: String,
+      enum: Object.values(UserRole),
       required: true,
    },
-   lastName: {
-      type: String,
-      required: true,
-   },
-   emailId: {
-      type: String,
-      required: true,
-      unique: true,
-   },
-   password: {
-      type: String,
-      required: true,
-   },
-   pic: {
-      type: String,
-      required: true,
-      default: "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-   },
-   cart: {
-      type: [String],
-      required: true,
-      default: [],
-   },
+   isVerified: { type: Boolean, default: false },
 }, { timestamps: true });
 
-const User = model<IUser>('user', userSchema);
-
-export default User;
+export const User = model<IUser>("User", UserSchema);
