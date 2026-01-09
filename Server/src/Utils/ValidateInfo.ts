@@ -1,32 +1,34 @@
-import validator from 'validator';
- 
+import validator from "validator";
 
-
-interface ValidateInfoInput{
-
-   emailId: string,
-   password: string
+interface ValidateInfoInput {
+   email: string;
+   password: string;
 }
 
-const ValidateInfo = (val: ValidateInfoInput): {message?: string, isValid: boolean} => {
+interface ValidateInfoOutput {
+   isValid: boolean;
+   message?: string;
+}
 
-  const { emailId, password } = val;
+const ValidateInfo = (val: ValidateInfoInput): ValidateInfoOutput => {
+   const { email, password } = val;
 
-  if (!validator.isEmail(emailId)){
-      return{
+   if (!validator.isEmail(email)) {
+      return {
+         isValid: false,
          message: "Invalid email",
-         isValid: false
-      }
-   }
-   if (!validator.isStrongPassword(password)){
-      return{
-         message: "Password is not strong enough",
-         isValid: false
-      }
+      };
    }
 
-   return{
-      isValid: true
+   if (!validator.isStrongPassword(password)) {
+      return {
+         isValid: false,
+         message: "Password is not strong enough",
+      };
+   }
+
+   return {
+      isValid: true,
    };
 };
 
