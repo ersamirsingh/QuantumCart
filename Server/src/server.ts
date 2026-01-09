@@ -1,21 +1,28 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import connectMongo from "./config/MongoDB";
 import connectRedis from "./config/Redis";
 import authRouter from "./Routers/AuthRouter";
+import cookieParser from 'cookie-parser'
+import userRouter from "./Routers/UserRouter";
 
-dotenv.config();
 
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
+
+
+
 app.use('/auth', authRouter)
+app.use('/user', userRouter)
 
 
 const startServer = async (): Promise<void> => {
 
    try {
-      await Promise.all([connectMongo(), connectRedis()]);
+      await Promise.allSettled([connectMongo(), connectRedis()]);
 
       const PORT = process.env.PORT || 5000;
 

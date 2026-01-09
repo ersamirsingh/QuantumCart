@@ -30,3 +30,4 @@ const connectRedis = async (): Promise<RedisClientType> => {
 };
 
 export default connectRedis;
+export {redisClient}
