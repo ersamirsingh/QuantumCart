@@ -3,10 +3,11 @@ import { redisClient } from "../config/Redis";
 import { User } from "../models/User";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-interface IPayload extends JwtPayload {
+export interface IPayload extends JwtPayload {
    id: string;
    email?: string;
 }
+
 
 const authenticateUser = async ( req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
    
