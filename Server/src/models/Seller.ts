@@ -6,15 +6,19 @@ export interface ISeller extends Document {
    storeDescription: string;
    rating: number;
    totalSales: number;
+   products: Types.ObjectId[];
 }
 
 const SellerSchema = new Schema<ISeller>(
    {
       userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
       storeName: { type: String, required: true },
-      storeDescription: String,
+      storeDescription: {type: String, maxlength: 200},
       rating: { type: Number, default: 0 },
       totalSales: { type: Number, default: 0 },
+      products: [
+         { type: Schema.Types.ObjectId, ref: "Product", index: true},
+      ]
    },
    { timestamps: true }
 );

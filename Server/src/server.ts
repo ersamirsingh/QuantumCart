@@ -6,6 +6,8 @@ import connectRedis from "./config/Redis";
 import authRouter from "./Routers/AuthRouter";
 import cookieParser from 'cookie-parser'
 import userRouter from "./Routers/UserRouter";
+import sellerRouter from "./Routers/SellerRouter";
+import productRouter from "./Routers/ProductRouter";
 
 
 
@@ -17,6 +19,9 @@ app.use(cookieParser());
 
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
+app.use('/seller', sellerRouter)
+app.use('/product', productRouter)
+
 
 
 const startServer = async (): Promise<void> => {

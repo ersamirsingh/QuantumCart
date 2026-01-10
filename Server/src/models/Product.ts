@@ -13,7 +13,6 @@ export interface IProduct extends Document {
    discount: number;
    finalPrice: number;
    sellerId: Types.ObjectId;
-   categoryId: Types.ObjectId;
    images: string[];
    stock: number;
    status: ProductStatus;
@@ -23,12 +22,11 @@ export interface IProduct extends Document {
 const ProductSchema = new Schema<IProduct>(
    {
       name: { type: String, required: true },
-      description: String,
+      description: {type: String, maxlength: 1000},
       price: { type: Number, required: true },
       discount: { type: Number, default: 0 },
       finalPrice: { type: Number, required: true },
       sellerId: { type: Schema.Types.ObjectId, ref: 'Seller', index: true },
-      categoryId: { type: Schema.Types.ObjectId, ref: 'Category', index: true },
       images: [String],
       stock: { type: Number, required: true },
       status: {
