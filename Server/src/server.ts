@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import userRouter from "./Routers/UserRouter";
 import sellerRouter from "./Routers/SellerRouter";
 import productRouter from "./Routers/ProductRouter";
+import orderRouter from "./Routers/OrderRouter";
 
 
 
@@ -21,6 +22,7 @@ app.use('/auth', authRouter)
 app.use('/user', userRouter)
 app.use('/seller', sellerRouter)
 app.use('/product', productRouter)
+app.use('/order', orderRouter)
 
 
 

@@ -16,8 +16,8 @@ export enum PaymentStatus {
 
 export interface IOrder extends Document {
    userId: Types.ObjectId;
-   sellerId: Types.ObjectId;
    items: {
+      sellerId: Types.ObjectId;
       productId: Types.ObjectId;
       quantity: number;
       priceAtPurchase: number;
@@ -25,24 +25,37 @@ export interface IOrder extends Document {
    totalAmount: number;
    orderStatus: OrderStatus;
    paymentStatus: PaymentStatus;
-   shippingAddress: object;
+   shippingAddress: any;
 }
 
 const OrderSchema = new Schema<IOrder>(
    {
-      userId: { type: Schema.Types.ObjectId, ref: "User", index: true },
-      sellerId: { type: Schema.Types.ObjectId, ref: "Seller", index: true },
+      userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+
       items: [
          {
-            productId: { type: Schema.Types.ObjectId, ref: "Product" },
-            quantity: Number,
-            priceAtPurchase: Number,
+            sellerId: { type: Schema.Types.ObjectId, ref: "Seller", required: true, index: true },
+            productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+            quantity: { type: Number, required: true },
+            priceAtPurchase: { type: Number, required: true },
          },
       ],
-      totalAmount: Number,
-      orderStatus: { type: String, enum: Object.values(OrderStatus) },
-      paymentStatus: { type: String, enum: Object.values(PaymentStatus) },
-      shippingAddress: Object,
+
+      totalAmount: { type: Number, required: true },
+
+      orderStatus: {
+         type: String,
+         enum: Object.values(OrderStatus),
+         default: OrderStatus.PLACED,
+      },
+
+      paymentStatus: {
+         type: String,
+         enum: Object.values(PaymentStatus),
+         default: PaymentStatus.PENDING,
+      },
+
+      shippingAddress: { type: Object, required: true },
    },
    { timestamps: true }
 );
