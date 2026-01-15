@@ -6,7 +6,7 @@ import { Seller } from "../models/Seller";
 const addProduct = async (req: Request, res: Response): Promise<Response | void> => {
    try {
       
-      let { name, description, price, discount, stock } = req.body || {};
+      let { name, description, price, discount, stock, images } = req.body || {};
 
       if (!name || !description || price == null || stock == null ) {
          return res.status(400).json({ message: "Missing required fields" });
@@ -24,6 +24,13 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
          finalPrice = price;
       }
 
+      let photos: string[] = [];
+      if(images != null || images.length > 0 || images != undefined){
+         images.forEach((image: string) => {
+            photos.push(image);
+         })
+      }
+
       const product = await Product.create({
          name,
          description,
@@ -31,6 +38,7 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
          discount,
          finalPrice,
          stock,
+         images:photos,
          sellerId: seller._id
       });
 
