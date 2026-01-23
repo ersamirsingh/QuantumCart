@@ -48,6 +48,31 @@ export const makeOrder = async (req: Request, res: Response) => {
 
 
 
+export const confirmOrder = async (req:Request, res:Response) => {
+   
+   try {
+      
+      const orderId = req.params.orderId;
+      if(!orderId){
+         return res.status(400).json({message: "Missing required fields"});   
+      }
+
+      const order = await Order.findById(orderId);
+      if(!order){
+         return res.status(404).json({message: "Order not found"});
+      }
+
+      order.orderStatus = OrderStatus.CONFIRMED;
+
+      await order.save();
+      return res.status(200).json({message: "Order confirmed successfully"});
+
+   } catch (error) {
+      res.status(500).json({message: "Internal server error"});
+   }
+}
+
+
 
 export const cancelOrder = async (req: Request, res: Response) => {
    try {
