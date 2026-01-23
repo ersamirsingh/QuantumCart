@@ -1,6 +1,7 @@
 import { Schema, model, Document, Types } from "mongoose";
 
 export enum OrderStatus {
+   PENDING = "PENDING",
    PLACED = "PLACED",
    CONFIRMED = "CONFIRMED",
    SHIPPED = "SHIPPED",
