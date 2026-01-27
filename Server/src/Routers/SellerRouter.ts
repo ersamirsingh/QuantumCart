@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticateUser from "../middleware/authenticateUser";
-import { sellerRegister, removeSeller } from "../controllers/sellerController";
+import { sellerRegister, removeSeller } from "../controllers/SellerController";
 
 const sellerRouter: Router = Router();
 

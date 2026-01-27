@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authenticateUser from "../middleware/authenticateUser";
-import { userInfo, updateUserInfo } from "../controllers/userController";
+import { userInfo, updateUserInfo } from "../controllers/UserController";
 
 
 
