@@ -3,12 +3,12 @@ import dotenv from "dotenv";
 dotenv.config();
 import connectMongo from "./config/MongoDB";
 import connectRedis from "./config/Redis";
-import authRouter from "./Routers/AuthRouter";
+import authRouter from "./Routers/AuthRoutes";
 import cookieParser from 'cookie-parser'
-import userRouter from "./Routers/UserRouter";
-import sellerRouter from "./Routers/SellerRouter";
-import productRouter from "./Routers/ProductRouter";
-import orderRouter from "./Routers/OrderRouter";
+import userRouter from "./Routers/UserRoutes";
+import sellerRouter from "./Routers/SellerRoutes";
+import productRouter from "./Routers/ProductRoutes";
+import orderRouter from "./Routers/OrderRoutes";
 
 
 
