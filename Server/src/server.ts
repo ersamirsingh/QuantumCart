@@ -9,6 +9,7 @@ import userRouter from "./Routers/UserRoutes";
 import sellerRouter from "./Routers/SellerRoutes";
 import productRouter from "./Routers/ProductRoutes";
 import orderRouter from "./Routers/OrderRoutes";
+import cors from 'cors'
 
 
 
@@ -16,6 +17,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(cors({
+   origin: 'http://localhost:5173',
+   credentials: true
+}))
 
 
 app.use('/auth', authRouter)

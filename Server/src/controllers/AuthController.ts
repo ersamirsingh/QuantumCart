@@ -209,5 +209,23 @@ const deleteUser = async (req: Request, res: Response) => {
 }
 
 
+const verifyUser = async (req: Request, res: Response) => {
+   
+   try {
+      
+      const user = res.locals.user;
+      return res.status(200).json({
+         success: true,
+         name: user.name,
+         email: user.email,
+         role: user.role,
+         isVerified: user.isVerified
+      });
+   } catch (error) {
+      return res.status(500).json({
+         message: error instanceof Error ? error.message : "Internal server error",
+      })
+   }
+}
 
-export { Register, Login, Logout, deleteUser }
+export { Register, Login, Logout, deleteUser, verifyUser }

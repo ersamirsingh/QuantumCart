@@ -1,13 +1,12 @@
-import express from 'express'
 import { Router } from 'express';
-import { Register, Login, Logout} from '../controllers/AuthController';
+import { Register, Login, Logout, deleteUser, verifyUser} from '../controllers/AuthController';
 import authenticateUser from '../middleware/authenticateUser';
-import { deleteUser } from "../controllers/AuthController";
 
 
 
-const authRouter: Router = express.Router();
+const authRouter: Router = Router();
 
+authRouter.get('/verify', authenticateUser, verifyUser);
 authRouter.post('/register', Register)
 authRouter.post('/login', Login)
 authRouter.get('/logout', authenticateUser, Logout)
