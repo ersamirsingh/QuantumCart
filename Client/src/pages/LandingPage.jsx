@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, TruckIcon, Shield, RotateCcw,
   Headphones, Bell, User, Menu, X, Sparkles, TrendingUp
 } from "lucide-react";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
 
@@ -153,6 +153,7 @@ export default function LandingPage() {
   const profileRef = useRef(null);
   const timerRef = useRef(null);
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const {user} = useSelector(state=>state.auth);
 
   // Close dropdown when clicking outside
@@ -857,7 +858,10 @@ export default function LandingPage() {
 
                   {/* Menu items */}
                   <div className="qch-dropdown-items">
-                    <button className="qch-dropdown-item" role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <button className="qch-dropdown-item" role="menuitem" onClick={() => {
+                      navigate("/user/profile");
+                      setProfileOpen(false);
+                    }}>
                       <span className="qch-dropdown-icon">👤</span> My Profile
                     </button>
                     <button className="qch-dropdown-item" role="menuitem" onClick={() => setProfileOpen(false)}>
