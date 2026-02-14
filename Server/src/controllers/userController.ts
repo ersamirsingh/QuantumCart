@@ -2,19 +2,22 @@ import {User} from '../models/User';
 import { Request, Response } from 'express';
 import ValidateInfo from '../Utils/ValidateInfo';
 import bcrypt from 'bcrypt';
-
+import { Seller } from '../models/Seller';
 
 
 const userInfo = async (req: Request, res: Response) : Promise<Response | void> => {
 
    try {
 
-      // console.log(res.locals)
       const user = res.locals.user;
       if (!user) {
          return res.status(404).json({ message: "User not found" });
       }
 
+      const seller = await Seller.findOne({ userId: user._id }).populate("userId", "name email role");
+      if(seller)
+         return res.status(200).json(seller);
+      
       res.status(200).json(user);   
    } catch (error: unknown) {
       return res.status(500).json({ 
@@ -34,17 +37,9 @@ const updateUserInfo = async (req:Request, res: Response) : Promise<Response | v
          return res.status(404).json({ message: "User not found" });
       }
 
-      const { name, email, password } = req.body;
-      if(!name && !email && !password){
-         return res.status(400).json({ message: "Missing required fields" });
-      }
+      let { name, email } = req.body;
 
-      if(!ValidateInfo(req.body).isValid){
-         return res.status(400).json({ message: `${ValidateInfo(req.body).message}` });
-      }
-
-      const hashedPassword:string = await bcrypt.hash(password, 10)
-      const updatedUser = await User.findByIdAndUpdate(user._id, { name, email, password: hashedPassword }, { new: true });
+      const updatedUser = await User.findByIdAndUpdate(user._id, { name, email }, { new: true, runValidators: true });
       if (!updatedUser) {
          return res.status(404).json({ message: "User not found" });
       }
