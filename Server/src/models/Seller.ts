@@ -1,7 +1,8 @@
 import { Schema, model, Document, Types } from "mongoose";
+import { IUser } from "./User";
 
 export interface ISeller extends Document {
-   userId: Types.ObjectId;
+   userId: Types.ObjectId | IUser;
    storeName: string;
    storeDescription: string;
    rating: number;

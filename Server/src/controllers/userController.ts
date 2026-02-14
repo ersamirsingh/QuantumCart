@@ -32,7 +32,6 @@ const updateUserInfo = async (req:Request, res: Response) : Promise<Response | v
    
    try {
       const user = res.locals.user;
-      // console.log(user)
       if (!user) {
          return res.status(404).json({ message: "User not found" });
       }

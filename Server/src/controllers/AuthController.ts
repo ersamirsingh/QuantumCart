@@ -5,7 +5,8 @@ import bcrypt from 'bcrypt'
 import { UserRole } from "../models/User";
 import jwt,{JwtPayload} from 'jsonwebtoken';
 import { redisClient } from "../config/Redis";
-
+import { Seller } from "../models/Seller";
+import { IUser } from "../models/User";
 
 
 const Register = async ( req: Request, res: Response): Promise<Response> => {
@@ -214,6 +215,21 @@ const verifyUser = async (req: Request, res: Response) => {
    try {
       
       const user = res.locals.user;
+      const seller = await Seller.findOne({userId: user._id}).populate<{ userId: IUser }>("userId", "name email role isVerified");
+      if(seller){
+         return res.status(200).json({
+            success: true,
+            _id: seller.userId._id,
+            name: seller.userId?.name,
+            email: seller.userId?.email,
+            role: seller.userId?.role,
+            isVerified: seller.userId?.isVerified,
+            storeName:seller.storeName,
+            rating:seller.rating,
+            totalSales:seller.totalSales,
+            products:seller.products
+         });
+      }
       return res.status(200).json({
          success: true,
          _id:user._id,
