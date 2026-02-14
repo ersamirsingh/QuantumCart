@@ -808,13 +808,13 @@ export default function ProfilePage() {
                <aside className="pf-sidebar">
                   {/* User card */}
                   <div className="pf-sidebar-card">
-                     <Avatar name={user.name} size={62} />
+                     <Avatar name={user?.name} size={62} />
                      <div>
-                        <div className="pf-sidebar-name">{user.name}</div>
-                        <div className="pf-sidebar-email">{user.email}</div>
+                        <div className="pf-sidebar-name">{user?.name}</div>
+                        <div className="pf-sidebar-email">{user?.email}</div>
                      </div>
                      <div className="pf-sidebar-badges">
-                        <RoleBadge role={user.role} />
+                        <RoleBadge role={user?.role} />
                         {!user.isVerified && (
                            <span style={{
                               display: "inline-flex", alignItems: "center", gap: 5,
@@ -1108,10 +1108,10 @@ export default function ProfilePage() {
 
                         {/* Seller stats */}
                         <div className="pf-dash-stats">
-                           <StatCard icon={<Package size={17} />} label="Products" value={seller.products} color="#00c6ff" bg="rgba(0,198,255,0.1)" />
-                           <StatCard icon={<DollarSign size={17} />} label="Total Sales" value={`₹${(seller.totalSales * 1200).toLocaleString()}`} color="#a855f7" bg="rgba(168,85,247,0.1)" />
-                           <StatCard icon={<Star size={17} />} label="Store Rating" value={`${seller.rating}★`} color="#f59e0b" bg="rgba(245,158,11,0.1)" />
-                           <StatCard icon={<TrendingUp size={17} />} label="Orders" value={seller.totalSales} color="#22c55e" bg="rgba(34,197,94,0.1)" />
+                           <StatCard icon={<Package size={17} />} label="Products" value={seller?.products} color="#00c6ff" bg="rgba(0,198,255,0.1)" />
+                           <StatCard icon={<DollarSign size={17} />} label="Total Sales" value={`₹${Number((seller?.totalSales * 1200).toFixed(2))}`} color="#a855f7" bg="rgba(168,85,247,0.1)" />
+                           <StatCard icon={<Star size={17} />} label="Store Rating" value={`${seller?.rating}★`} color="#f59e0b" bg="rgba(245,158,11,0.1)" />
+                           <StatCard icon={<TrendingUp size={17} />} label="Orders" value={seller?.totalSales} color="#22c55e" bg="rgba(34,197,94,0.1)" />
                         </div>
 
                         {/* Quick actions */}
