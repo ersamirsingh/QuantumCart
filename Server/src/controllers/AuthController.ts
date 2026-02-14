@@ -216,6 +216,7 @@ const verifyUser = async (req: Request, res: Response) => {
       const user = res.locals.user;
       return res.status(200).json({
          success: true,
+         _id:user._id,
          name: user.name,
          email: user.email,
          role: user.role,
