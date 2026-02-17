@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import {logoutUser} from "../../store/slices/authSlice";
+import {checkAuth, logoutUser} from "../../store/slices/authSlice";
 import { updateUser } from "../../store/slices/userSlice";
 import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
 import { useNavigate } from "react-router";
@@ -151,13 +151,7 @@ function RemoveModal({ onClose, onConfirm, loading }) {
 ───────────────────────────────────────────────────────── */
 export default function ProfilePage() {
 
-   // FIX: Was const [user, setUser] = useState(useSelector(...))
-   // That captures the Redux value ONCE at mount time — so if the component mounts
-   // before the login async thunk finishes and writes to Redux (e.g. navigating to
-   // /profile immediately after login), user is null/stale and never updates.
-   // Reading directly from useSelector makes the component re-render reactively
-   // whenever Redux state changes, so it always shows the latest value.
-   const user = useSelector(state => state.auth.user);
+   const {user} = useSelector(state => state.auth);
    const seller = user?.role === 'SELLER' ? user : null;
 
    const dispatch = useDispatch()
@@ -165,9 +159,7 @@ export default function ProfilePage() {
 
    const [tab, setTab] = useState("profile");
 
-   // FIX: Was reading user.role before user was guaranteed to be loaded,
-   // which caused a crash. Now we guard the initial tab in a useEffect or
-   // simply default to "profile" and let the render handle the seller tab.
+
    useEffect(() => {
       if (user?.role === "SELLER") {
          setTab("seller-dashboard");
@@ -200,31 +192,50 @@ export default function ProfilePage() {
    const handleSaveProfile = async () => {
       if (!editName.trim()) return;
       setEditSaving(true);
-      // FIX: Removed the local setUser() call — Redux is now the single source of
-      // truth. The updateUser dispatch will update Redux, which updates this component.
       dispatch(updateUser({ name: editName.trim(), email: editEmail.trim() }));
       setEditing(false);
       setEditSaving(false);
    };
 
    const handleSellerRegister = async () => {
-      if (!storeName.trim()) { setStoreNameErr("Store name is required"); return; }
-      if (storeName.length < 3) { setStoreNameErr("Minimum 3 characters"); return; }
-      setStoreNameErr(""); setRegLoading(true);
-      // FIX: Removed local setSeller() and setUser() — Redux slices own this state now.
-      await dispatch(registerSeller({ storeName, storeDescription: storeDesc }));
-      setRegSuccess(true);
-      setRegLoading(false);
-      setTimeout(() => { setRegSuccess(false); setTab("seller-dashboard"); }, 1600);
+      if (!storeName.trim()) { 
+         setStoreNameErr("Store name is required"); 
+         return; 
+      }
+      if (storeName.length < 3) { 
+         setStoreNameErr("Minimum 3 characters"); 
+         return; 
+      }
+      setStoreNameErr(""); 
+      setRegLoading(true);
+      try {
+         await dispatch(registerSeller({ storeName, storeDescription: storeDesc })).unwrap();
+         await dispatch(checkAuth()).unwrap();
+         setTab("seller-dashboard");
+         setRegSuccess(true);
+         setRegLoading(false);
+      } catch (error) {
+         alert(error.message);
+         setRegSuccess(false)
+      }
+      finally {
+         setRegLoading(false);
+      }
    };
 
    const handleRemoveSeller = async () => {
       setRemoveLoading(true);
-      // FIX: Removed local setUser() and setSeller() — let Redux manage the state.
-      await dispatch(removeSeller());
-      setShowRemove(false);
-      setRemoveLoading(false);
-      setTab("profile");
+      try {
+         await dispatch(removeSeller()).unwrap();
+         await dispatch(checkAuth()).unwrap();
+         setShowRemove(false)
+      } catch (error) {
+         alert(error.message);
+      }
+      finally {
+         setTab("profile");
+         setRemoveLoading(false);
+      }
    };
 
    const handleResendVerification = async () => {
