@@ -1,22 +1,24 @@
 import { Request, Response } from "express"
 import { Product } from "../models/Product";
 import { Seller } from "../models/Seller";
+import mongoose from 'mongoose'
+
 
 
 const addProduct = async (req: Request, res: Response): Promise<Response | void> => {
    try {
-      
+
       let { name, description, price, discount, stock, images } = req.body || {};
 
-      if (!name || !description || price == null || stock == null ) {
+      if (!name || !description || price == null || stock == null) {
          return res.status(400).json({ message: "Missing required fields" });
       }
 
-      const seller = await Seller.findOne({ userId: res.locals.user._id });
+      const seller = await Seller.findById(res.locals.user._id);
       if (!seller) {
          return res.status(404).json({ message: "Seller not found" });
       }
-      
+
       let finalPrice: number;
       if (discount != null) {
          finalPrice = price - price * (discount / 100);
@@ -25,7 +27,7 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
       }
 
       let photos: string[] = [];
-      if(images != null || images.length > 0 || images != undefined){
+      if (images != null || images.length > 0 || images != undefined) {
          images.forEach((image: string) => {
             photos.push(image);
          })
@@ -38,7 +40,7 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
          discount,
          finalPrice,
          stock,
-         images:photos,
+         images: photos,
          sellerId: seller._id
       });
 
@@ -58,29 +60,82 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
 
 
 
+// const removeProduct = async (req: Request, res: Response) => {
+
+//    try {
+
+//       const productId = req.params.productId;
+//       if(!productId)
+//          return res.status(400).json({message: "Missing required fields"});
+
+//       const product = await Product.findByIdAndDelete(productId);
+//       if(!product)
+//          return res.status(404).json({message: "Product not found"});
+
+//       const seller = await Seller.findById(product.sellerId);
+//       if(!seller)
+//          return res.status(404).json({message: "Seller not found"});
+
+//       const index = seller.products.findIndex((id) => id.toString() === product._id.toString());
+//       if (index > -1) {
+//          seller.products.splice(index, 1);
+//          await seller.save();
+//       }
+
+//       return res.status(200).json({message: "Product deleted successfully"});
+
+//    } catch (error) {
+
+//       return res.status(500).json({
+//          message:
+//             error instanceof Error ? error.message : "Internal server error"
+//       });
+
+//    }
+// }
+
+
 const removeProduct = async (req: Request, res: Response) => {
-
    try {
+      const { productId } = req.params;
+      const sellerId = res.locals.user._id;
 
-      const productId = req.params.productId;
-      if(!productId)
-         return res.status(400).json({message: "Missing required fields"});
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+         return res.status(400).json({ message: "Invalid product ID" });
+      }
 
-      const product = await Product.findByIdAndDelete(productId);
-      if(!product)
-         return res.status(404).json({message: "Product not found"});
+      // Verify product belongs to seller
+      const product = await Product.findOne({
+         _id: productId,
+         sellerId: sellerId
+      });
 
-      return res.status(200).json({message: "Product deleted successfully"});
+      if (!product) {
+         return res.status(404).json({
+            message: "Product not found or unauthorized"
+         });
+      }
+
+      // Delete product
+      await Product.deleteOne({ _id: productId });
+
+      // Remove product reference from seller atomically
+      await Seller.updateOne(
+         { _id: sellerId },
+         { $pull: { products: productId } }
+      );
+
+      return res.status(200).json({
+         message: "Product deleted successfully"
+      });
 
    } catch (error) {
-
       return res.status(500).json({
          message:
             error instanceof Error ? error.message : "Internal server error"
       });
-
    }
-}
+};
 
 
 
@@ -88,14 +143,14 @@ const removeProduct = async (req: Request, res: Response) => {
 const updateProduct = async (req: Request, res: Response) => {
 
    try {
-            
-      const {productId} = req.params;
-      if(!productId)
-         return res.status(400).json({message: "Missing required fields"});
+
+      const { productId } = req.params;
+      if (!productId)
+         return res.status(400).json({ message: "Missing required fields" });
 
       const product = await Product.findById(productId);
-      if(!product)
-         return res.status(404).json({message: "Product not found"});
+      if (!product)
+         return res.status(404).json({ message: "Product not found" });
 
       const {
          name,
@@ -118,7 +173,7 @@ const updateProduct = async (req: Request, res: Response) => {
          const currentDiscount = discount ?? product.discount ?? 0;
 
          product.finalPrice =
-         currentPrice - currentPrice * (currentDiscount / 100);
+            currentPrice - currentPrice * (currentDiscount / 100);
       }
 
       await product.save();
@@ -133,4 +188,37 @@ const updateProduct = async (req: Request, res: Response) => {
 }
 
 
-export { addProduct, removeProduct, updateProduct }
+
+const getSellerProduct = async (req: Request, res: Response) => {
+
+   try {
+      const products = await Product.find({ sellerId: res.locals.user?._id })
+      return res.status(200).json(products);
+   } catch (error) {
+      return res.status(500).json({
+         message: error instanceof Error ? error.message : "Internal server error"
+      });
+   }
+}
+
+
+
+const getProductById = async (req: Request, res: Response) => {
+
+   try {
+      const productId = req.params.productId;
+      const product = await Product.findById(productId);
+      if (!product)
+         return res.status(404).json({ message: "Product not found" });
+
+      return res.status(200).json(product);
+   } catch (error) {
+      return res.status(500).json({
+         message: error instanceof Error ? error.message : "Internal server error"
+      });
+   }
+}
+
+
+
+export { addProduct, removeProduct, updateProduct, getSellerProduct, getProductById }
