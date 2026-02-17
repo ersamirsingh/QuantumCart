@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import {logoutUser} from "../../store/slices/authSlice";
 import { updateUser } from "../../store/slices/userSlice";
 import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
+import { useNavigate } from "react-router";
 
 
 
@@ -17,7 +18,7 @@ import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
 /* ─────────────────────────────────────────────────────────
    TINY ATOMS
 ───────────────────────────────────────────────────────── */
-function Avatar({ name, size = 72 }) {
+function Avatar({ name='$', size = 72 }) {
    const initials = name
       .split(" ")
       .map((w) => w[0])
@@ -150,17 +151,19 @@ function RemoveModal({ onClose, onConfirm, loading }) {
 ───────────────────────────────────────────────────────── */
 export default function ProfilePage() {
 
-   const INITIAL_USER = useSelector(state=>state.auth.user)
-   const [user, setUser] = useState(INITIAL_USER);
+   const [user, setUser] = useState(useSelector(state=>state.auth.user));
    const INITIAL_SELLER = user.role === "SELLER" ? user : null;
    const [seller, setSeller] = useState(
-      INITIAL_USER.role === "SELLER" ? INITIAL_SELLER : null
+      user.role === "SELLER" ? INITIAL_SELLER : null
    );
    const dispatch = useDispatch()
+   const navigate = useNavigate()
 
    const [tab, setTab] = useState(
-      INITIAL_USER.role === "SELLER" ? "seller-dashboard" : "profile"
+      user.role === "SELLER" ? "seller-dashboard" : "profile"
    );
+
+   const {loading} = useSelector(s=>s.auth)
 
    /* profile edit */
    const [editing, setEditing] = useState(false);
@@ -231,6 +234,9 @@ export default function ProfilePage() {
       { id: "orders", icon: <Package size={15} />, label: "My Orders" },
       { id: "settings", icon: <Settings size={15} />, label: "Settings" },
    ];
+
+   if(loading)
+      return <>Loading Profile...</>
 
    return (
       <>
@@ -1108,7 +1114,7 @@ export default function ProfilePage() {
 
                         {/* Seller stats */}
                         <div className="pf-dash-stats">
-                           <StatCard icon={<Package size={17} />} label="Products" value={seller?.products} color="#00c6ff" bg="rgba(0,198,255,0.1)" />
+                           <StatCard icon={<Package size={17} />} label="Products" value={seller?.products?.length} color="#00c6ff" bg="rgba(0,198,255,0.1)" />
                            <StatCard icon={<DollarSign size={17} />} label="Total Sales" value={`₹${Number((seller?.totalSales * 1200).toFixed(2))}`} color="#a855f7" bg="rgba(168,85,247,0.1)" />
                            <StatCard icon={<Star size={17} />} label="Store Rating" value={`${seller?.rating}★`} color="#f59e0b" bg="rgba(245,158,11,0.1)" />
                            <StatCard icon={<TrendingUp size={17} />} label="Orders" value={seller?.totalSales} color="#22c55e" bg="rgba(34,197,94,0.1)" />
@@ -1120,12 +1126,12 @@ export default function ProfilePage() {
                         </p>
                         <div className="pf-qactions">
                            {[
-                              { ico: "➕", label: "Add Product", sub: "List a new item", bg: "rgba(0,198,255,0.09)", color: "#00c6ff" },
-                              { ico: "📊", label: "Analytics", sub: "View sales & traffic", bg: "rgba(168,85,247,0.09)", color: "#a855f7" },
-                              { ico: "📦", label: "Manage Orders", sub: "Fulfill & track orders", bg: "rgba(245,158,11,0.09)", color: "#f59e0b" },
-                              { ico: "⚙️", label: "Store Settings", sub: "Edit profile & policies", bg: "rgba(34,197,94,0.09)", color: "#22c55e" },
+                              { ico: "👁️", link:'/seller/products', label: 'ViewProduct', sub: "List a new item", bg: "rgba(0,198,255,0.09)", color: "#00c6ff" },
+                              { ico: "📊", link:'/seller/analytics', label: "Analytics", sub: "View sales & traffic", bg: "rgba(168,85,247,0.09)", color: "#a855f7" },
+                              { ico: "📦", link:'/seller/orders', label: "Manage Orders", sub: "Fulfill & track orders", bg: "rgba(245,158,11,0.09)", color: "#f59e0b" },
+                              { ico: "⚙️", link:'/seller/store', label: "Store Settings", sub: "Edit profile & policies", bg: "rgba(34,197,94,0.09)", color: "#22c55e" },
                            ].map((a) => (
-                              <button className="pf-qaction" key={a.label} onClick={() => alert(`Navigate to: ${a.label}`)}>
+                              <button className="pf-qaction" key={a.label} onClick={() => navigate(a.link)}>
                                  <div className="pf-qaction-ico" style={{ background: a.bg, color: a.color }}>{a.ico}</div>
                                  <div>
                                     <div className="pf-qaction-label">{a.label}</div>

@@ -13,6 +13,12 @@ import {
 } from 'react-router-dom';
 import SellerPage from './pages/seller/SellerPage';
 import ProfilePage from './pages/user/ProfilePage';
+import ProductDeletePage from './pages/Product/productDeletePage';
+import ProductAddPage from './pages/Product/ProductAddPage';
+import ProductViewPage from './pages/Product/ProductViewPage';
+import AllProductsPage from './pages/Product/AllProductPage';
+import UpdateProductPage from './pages/Product/ProductUpdatePage';
+import ProductUpdatePage from './pages/Product/ProductUpdatePage';
 
 
 function App() {
@@ -40,13 +46,39 @@ function App() {
           element={isAuthenticated ? <Navigate to="/" /> : <Signup />}
         ></Route>
 
+        <Route path='/user/profile'
+          element={isAuthenticated ? <ProfilePage/>: <Navigate to='/login' />}
+        ></Route>
+
         <Route path='/become-seller'
           element={isAuthenticated && user.role === 'CUSTOMER' ? <SellerPage/>: <Navigate to='/'/>}
         ></Route>
 
-        <Route path='/user/profile'
-          element={isAuthenticated ? <ProfilePage/>: <Navigate to='/login' />}
+        <Route 
+          path="/seller/products" 
+          element={isAuthenticated && user.role === 'SELLER' ? <AllProductsPage /> : <Navigate to="/" />} 
         ></Route>
+
+        <Route
+          path='/product/:id'
+          element={isAuthenticated ? <ProductViewPage /> : <Navigate to='/' />}
+        ></Route>
+
+        <Route
+          path='/product/add'
+          element={isAuthenticated && user.role === 'SELLER' ? <ProductAddPage /> : <Navigate to='/' />}
+        ></Route>
+
+        <Route
+          path='/product/edit/:id'
+          element={isAuthenticated && user.role === 'SELLER' ? <ProductUpdatePage /> : <Navigate to='/' />}
+        ></Route>
+
+        <Route
+          path='/product/delete/:id'
+          element={isAuthenticated && user.role === 'SELLER' ? <ProductDeletePage /> : <Navigate to='/' />}
+        ></Route>
+
       </Routes>
     </Router>
   );
