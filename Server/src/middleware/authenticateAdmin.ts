@@ -27,7 +27,7 @@ const authenticateAdmin = async (req: Request, res: Response, next: NextFunction
          return res.status(401).json({message: "Unauthorized"});
       }
 
-      const user = await User.findById(payload.id);
+      const user = await User.findById(payload.id).select('-password');
       if(!user){
          return res.status(401).json({message: "Unauthorized"});
       }  
