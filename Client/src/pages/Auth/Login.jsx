@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router";
 import { loginUser } from "../../store/slices/authSlice";
+import { checkAuth } from "../../store/slices/authSlice";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -37,6 +38,7 @@ function ParticleField() {
 }
 
 export default function Login() {
+
   const [showPassword, setShowPassword] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dispatch = useDispatch();
@@ -47,10 +49,24 @@ export default function Login() {
     resolver: zodResolver(loginSchema),
   });
 
-  useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { if (isAuthenticated) navigate("/"); }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const onSubmit = (data) => dispatch(loginUser(data));
+  useEffect(() => {
+    if (isAuthenticated)
+      navigate("/");
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = async (data) => {
+    try {
+      await dispatch(loginUser(data)).unwrap();
+      await dispatch(checkAuth()).unwrap();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const handleGoogle = () => alert("Mock: Launch Google OAuth flow");
 
   return (

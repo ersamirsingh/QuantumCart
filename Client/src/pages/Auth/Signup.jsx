@@ -6,6 +6,8 @@ import { z } from "zod";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router";
 import { registerUser } from "../../store/slices/authSlice";
+import { checkAuth } from "../../store/slices/authSlice";
+
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -94,6 +96,7 @@ function ParticleField() {
 }
 
 export default function Signup() {
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -108,11 +111,28 @@ export default function Signup() {
 
   const passwordValue = watch("password", "");
 
-  useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { setWatchedPassword(passwordValue); }, [passwordValue]);
-  useEffect(() => { if (isAuthenticated) navigate("/"); }, [isAuthenticated, navigate]);
+  useEffect(() => { 
+    setMounted(true); 
+  }, []);
 
-  const onSubmit = (data) => dispatch(registerUser(data));
+  useEffect(() => { 
+    setWatchedPassword(passwordValue); 
+  }, [passwordValue]);
+
+  useEffect(() => { 
+    if (isAuthenticated) 
+    navigate("/");
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = async (data) => {
+    try {
+      await dispatch(registerUser(data)).unwrap();
+      await dispatch(checkAuth()).unwrap();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  
   const handleGoogle = () => alert("Mock: Launch Google OAuth flow");
 
   const perks = [
