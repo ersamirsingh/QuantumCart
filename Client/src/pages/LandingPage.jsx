@@ -146,6 +146,7 @@ function ProductCard({ product }) {
 export default function LandingPage() {
   const [heroIndex, setHeroIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [cartCount] = useState(3);
   const [profileOpen, setProfileOpen] = useState(false);

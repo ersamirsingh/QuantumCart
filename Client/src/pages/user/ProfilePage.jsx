@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
    Zap, User, Mail, Shield, Store, ArrowRight, CheckCircle,
    AlertTriangle, Edit3, Save, X, Trash2, Package, BarChart2,
@@ -151,24 +151,35 @@ function RemoveModal({ onClose, onConfirm, loading }) {
 ───────────────────────────────────────────────────────── */
 export default function ProfilePage() {
 
-   const [user, setUser] = useState(useSelector(state=>state.auth.user));
-   const INITIAL_SELLER = user.role === "SELLER" ? user : null;
-   const [seller, setSeller] = useState(
-      user.role === "SELLER" ? INITIAL_SELLER : null
-   );
+   // FIX: Was const [user, setUser] = useState(useSelector(...))
+   // That captures the Redux value ONCE at mount time — so if the component mounts
+   // before the login async thunk finishes and writes to Redux (e.g. navigating to
+   // /profile immediately after login), user is null/stale and never updates.
+   // Reading directly from useSelector makes the component re-render reactively
+   // whenever Redux state changes, so it always shows the latest value.
+   const user = useSelector(state => state.auth.user);
+   const seller = user?.role === 'SELLER' ? user : null;
+
    const dispatch = useDispatch()
    const navigate = useNavigate()
 
-   const [tab, setTab] = useState(
-      user.role === "SELLER" ? "seller-dashboard" : "profile"
-   );
+   const [tab, setTab] = useState("profile");
 
-   const {loading} = useSelector(s=>s.auth)
+   // FIX: Was reading user.role before user was guaranteed to be loaded,
+   // which caused a crash. Now we guard the initial tab in a useEffect or
+   // simply default to "profile" and let the render handle the seller tab.
+   useEffect(() => {
+      if (user?.role === "SELLER") {
+         setTab("seller-dashboard");
+      }
+   }, [user?.role]);
+
+   const { loading } = useSelector(s => s.auth)
 
    /* profile edit */
    const [editing, setEditing] = useState(false);
-   const [editName, setEditName] = useState(user.name);
-   const [editEmail, setEditEmail] = useState(user.email);
+   const [editName, setEditName] = useState("");
+   const [editEmail, setEditEmail] = useState("");
    const [editSaving, setEditSaving] = useState(false);
 
    /* seller register */
@@ -189,8 +200,9 @@ export default function ProfilePage() {
    const handleSaveProfile = async () => {
       if (!editName.trim()) return;
       setEditSaving(true);
-      dispatch(updateUser({ name: editName.trim(), email: editEmail.trim() }))
-      setUser((u) => ({ ...u, name: editName.trim(), email: editEmail.trim() }));
+      // FIX: Removed the local setUser() call — Redux is now the single source of
+      // truth. The updateUser dispatch will update Redux, which updates this component.
+      dispatch(updateUser({ name: editName.trim(), email: editEmail.trim() }));
       setEditing(false);
       setEditSaving(false);
    };
@@ -199,19 +211,17 @@ export default function ProfilePage() {
       if (!storeName.trim()) { setStoreNameErr("Store name is required"); return; }
       if (storeName.length < 3) { setStoreNameErr("Minimum 3 characters"); return; }
       setStoreNameErr(""); setRegLoading(true);
-      dispatch(registerSeller({storeName, storeDescription: storeDesc}))
-      setSeller({ storeName: storeName.trim(), storeDescription: storeDesc.trim(), rating: 0, totalSales: 0, products: 0 });
-      setUser((u) => ({ ...u, role: "SELLER" }));
+      // FIX: Removed local setSeller() and setUser() — Redux slices own this state now.
+      await dispatch(registerSeller({ storeName, storeDescription: storeDesc }));
       setRegSuccess(true);
-      setTimeout(() => { setRegSuccess(false); setTab("seller-dashboard"); }, 1600);
       setRegLoading(false);
+      setTimeout(() => { setRegSuccess(false); setTab("seller-dashboard"); }, 1600);
    };
 
    const handleRemoveSeller = async () => {
       setRemoveLoading(true);
-      dispatch(removeSeller())
-      setUser((u) => ({ ...u, role: "CUSTOMER" }));
-      setSeller(null);
+      // FIX: Removed local setUser() and setSeller() — let Redux manage the state.
+      await dispatch(removeSeller());
       setShowRemove(false);
       setRemoveLoading(false);
       setTab("profile");
@@ -228,14 +238,14 @@ export default function ProfilePage() {
    /* ── sidebar nav items ── */
    const navItems = [
       { id: "profile", icon: <User size={15} />, label: "My Profile" },
-      user.role === "SELLER"
+      user?.role === "SELLER"
          ? { id: "seller-dashboard", icon: <Store size={15} />, label: "Seller Dashboard" }
          : { id: "seller-register", icon: <Store size={15} />, label: "Become a Seller" },
       { id: "orders", icon: <Package size={15} />, label: "My Orders" },
       { id: "settings", icon: <Settings size={15} />, label: "Settings" },
    ];
 
-   if(loading)
+   if (loading || !user)
       return <>Loading Profile...</>
 
    return (
@@ -1114,10 +1124,10 @@ export default function ProfilePage() {
 
                         {/* Seller stats */}
                         <div className="pf-dash-stats">
-                           <StatCard icon={<Package size={17} />} label="Products" value={seller?.products?.length} color="#00c6ff" bg="rgba(0,198,255,0.1)" />
+                           <StatCard icon={<Package size={17} />} label="Products" value={seller?.products?.length ?? 0} color="#00c6ff" bg="rgba(0,198,255,0.1)" />
                            <StatCard icon={<DollarSign size={17} />} label="Total Sales" value={`₹${Number((seller?.totalSales * 1200).toFixed(2))}`} color="#a855f7" bg="rgba(168,85,247,0.1)" />
                            <StatCard icon={<Star size={17} />} label="Store Rating" value={`${seller?.rating}★`} color="#f59e0b" bg="rgba(245,158,11,0.1)" />
-                           <StatCard icon={<TrendingUp size={17} />} label="Orders" value={seller?.totalSales} color="#22c55e" bg="rgba(34,197,94,0.1)" />
+                           <StatCard icon={<TrendingUp size={17} />} label="Orders" value={seller?.totalSales ?? 0} color="#22c55e" bg="rgba(34,197,94,0.1)" />
                         </div>
 
                         {/* Quick actions */}

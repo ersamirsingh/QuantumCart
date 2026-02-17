@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
-   Zap, Package, Search, Eye, Edit3, Trash2,
-   AlertTriangle, Image as ImageIcon, Layers,
-   DollarSign, Tag, BarChart2, RefreshCw,
+   Zap, Package, Search, Eye, Edit3,
+   AlertTriangle, Image as ImageIcon, RefreshCw,
 } from "lucide-react";
 import axiosClient from "../../API/axiosClient";
 
@@ -46,7 +45,7 @@ function Thumb({ images }) {
 }
 
 /* ── Product Row ── */
-function ProductRow({ product, index, onView, onEdit, onDelete }) {
+function ProductRow({ product, index, onView, onEdit }) {
    const meta = STATUS_META[product.status] || STATUS_META.ACTIVE;
 
    return (
@@ -135,30 +134,6 @@ function ProductRow({ product, index, onView, onEdit, onDelete }) {
             <button className="ap-action-btn edit" onClick={() => onEdit(product._id)} title="Edit">
                <Edit3 size={14} />
             </button>
-            <button className="ap-action-btn del" onClick={() => onDelete(product)} title="Delete">
-               <Trash2 size={14} />
-            </button>
-         </div>
-      </div>
-   );
-}
-
-/* ── Delete Confirm Modal ── */
-function DeleteModal({ product, onClose, onConfirm, loading }) {
-   return (
-      <div className="ap-modal-bg" onClick={() => !loading && onClose()}>
-         <div className="ap-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="ap-modal-ico"><Trash2 size={20} color="#f87171" /></div>
-            <h3 className="ap-modal-title">Delete Product?</h3>
-            <p className="ap-modal-sub">
-               <strong style={{ color: "#fff" }}>{product.name}</strong> will be permanently removed from your store.
-            </p>
-            <div className="ap-modal-actions">
-               <button className="ap-modal-cancel" onClick={onClose} disabled={loading}>Cancel</button>
-               <button className="ap-modal-confirm" onClick={onConfirm} disabled={loading}>
-                  {loading ? <><div className="ap-spin white" /> Deleting…</> : <><Trash2 size={13} /> Delete</>}
-               </button>
-            </div>
          </div>
       </div>
    );
@@ -173,8 +148,6 @@ export default function AllProductsPage() {
    const [error, setError] = useState("");
    const [search, setSearch] = useState("");
    const [filterStatus, setFilterStatus] = useState("ALL");
-   const [deleteTarget, setDeleteTarget] = useState(null);
-   const [deleteLoading, setDeleteLoading] = useState(false);
 
    /* ── Fetch products ── */
    const fetchProducts = async () => {
@@ -194,20 +167,6 @@ export default function AllProductsPage() {
       fetchProducts(); 
    }, []);
 
-   /* ── Delete ── */
-   const handleDelete = async () => {
-      setDeleteLoading(true);
-      try {
-         /* Real: await fetch(`/product/${deleteTarget._id}`, { method: "DELETE", credentials: "include" }); */
-         await new Promise((r) => setTimeout(r, 1000));
-         setProducts((p) => p.filter((x) => x._id !== deleteTarget._id));
-         setDeleteTarget(null);
-      } catch (e) {
-         alert(e.message);
-      } finally {
-         setDeleteLoading(false);
-      }
-   };
 
    /* ── Filter ── */
    const filtered = products.filter((p) => {
@@ -535,16 +494,6 @@ export default function AllProductsPage() {
                   </>
                )}
             </div>
-
-            {/* DELETE MODAL */}
-            {deleteTarget && (
-               <DeleteModal
-                  product={deleteTarget}
-                  onClose={() => !deleteLoading && setDeleteTarget(null)}
-                  onConfirm={handleDelete}
-                  loading={deleteLoading}
-               />
-            )}
          </div>
       </>
    );
