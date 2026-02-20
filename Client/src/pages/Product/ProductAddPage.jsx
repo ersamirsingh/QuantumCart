@@ -144,7 +144,6 @@ export default function ProductAddPage() {
       setLoading(true);
       try {
          const res = await axiosClient.post('/product/add', payload);
-         console.log(res.data)
          setProduct(res.data);
          setSuccess(true);
          setTimeout(() => {

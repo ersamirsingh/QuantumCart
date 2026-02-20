@@ -41,10 +41,8 @@ export default function ProductDeletePage() {
   useEffect(() => {
     const load = async () => {
       try {
-        console.log(id)
         const res = await axiosClient.get(`/product/${id}`, { credentials:"include" });
         setProduct(res.data);
-        console.log(res.data)
         setSuccess(true);
       } catch (e) {
         alert(e.message || "Failed to load product");
@@ -64,8 +62,7 @@ export default function ProductDeletePage() {
     setDeleteError("");
 
     try {
-      const res = await axiosClient.delete(`/product/${product._id}`);
-      console.log(res.data)
+      await axiosClient.delete(`/product/${product._id}`);
       setDeleted(true);
       setSuccess(true)
       setTimeout(() => navigate("/seller/products"), 1000);

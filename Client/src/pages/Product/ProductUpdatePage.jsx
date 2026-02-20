@@ -176,7 +176,6 @@ export default function ProductUpdatePage() {
 
       try {
          const res = await axiosClient.patch(`/product/${original._id}`, payload);
-         console.log(res.data);
          setOriginal((prev) => ({ ...prev, ...payload }));
          setSuccess(true);
          setTimeout(() => {

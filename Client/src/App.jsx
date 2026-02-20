@@ -17,7 +17,6 @@ import ProductDeletePage from './pages/Product/productDeletePage';
 import ProductAddPage from './pages/Product/ProductAddPage';
 import ProductViewPage from './pages/Product/ProductViewPage';
 import AllProductsPage from './pages/Product/AllProductPage';
-import UpdateProductPage from './pages/Product/ProductUpdatePage';
 import ProductUpdatePage from './pages/Product/ProductUpdatePage';
 
 
