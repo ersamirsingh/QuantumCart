@@ -5,6 +5,7 @@ import {
    AlertTriangle, Plus, Edit3, RefreshCw,
 } from "lucide-react";
 import axiosClient from "../../API/axiosClient";
+import LoadingPage from "../../components/LoadingPage";
 
 /* ── Status options ── */
 const STATUS_OPTIONS = [
@@ -203,6 +204,8 @@ export default function ProductUpdatePage() {
       setApiError(""); 
       setSuccess(false);
    };
+
+   if(loading) return <LoadingPage />
 
    return (
       <>

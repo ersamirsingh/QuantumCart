@@ -5,6 +5,7 @@ import {
    AlertTriangle, Image as ImageIcon, RefreshCw,
 } from "lucide-react";
 import axiosClient from "../../API/axiosClient";
+import LoadingPage from "../../components/LoadingPage";
 
 /* ── Status meta ── */
 const STATUS_META = {
@@ -183,6 +184,8 @@ export default function AllProductsPage() {
       outStock: products.filter((p) => p.status === "OUT_OF_STOCK").length,
       blocked: products.filter((p) => p.status === "BLOCKED").length,
    };
+
+   if(loading) return <LoadingPage/>
 
    return (
       <>

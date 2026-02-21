@@ -6,6 +6,7 @@ import {
   ShieldOff, BarChart2,
 } from "lucide-react";
 import axiosClient from "../../API/axiosClient";
+import LoadingPage from "../../components/LoadingPage";
 
 /* ── Status meta ── */
 const STATUS_META = {
@@ -74,6 +75,8 @@ export default function ProductDeletePage() {
 
   const confirmed = typed === "DELETE";
   const statusMeta = STATUS_META[product?.status] || STATUS_META.ACTIVE;
+
+  if(loading) return <LoadingPage/>
 
   return (
     <>

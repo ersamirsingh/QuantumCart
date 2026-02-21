@@ -6,6 +6,7 @@ import {
    Clock, BarChart2, Image as ImageIcon, Shield,
 } from "lucide-react";
 import axiosClient from "../../API/axiosClient";
+import LoadingPage from "../../components/LoadingPage";
 
 
 /* ── Helpers ── */
@@ -98,11 +99,6 @@ export default function ProductViewPage() {
       load();
    }, [id]);
 
-   if (loading) return (
-      <Shell>
-         <div className="pv-loading"><div className="pv-spin" /> Loading product…</div>
-      </Shell>
-   );
 
    if (error) return (
       <Shell>
@@ -116,12 +112,15 @@ export default function ProductViewPage() {
          </div>
       </Shell>
    );
+   
+   if(loading) return <LoadingPage/>
 
    const p = product;
    const meta = product?.status;
    const hasImages = p.images && p.images.length > 0;
    const prevImg = () => setImgIndex((i) => (i - 1 + p.images.length) % p.images.length);
    const nextImg = () => setImgIndex((i) => (i + 1) % p.images.length);
+
 
    return (
       <Shell product={p} navigate={navigate}>

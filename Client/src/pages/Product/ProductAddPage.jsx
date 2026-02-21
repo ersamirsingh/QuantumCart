@@ -5,6 +5,7 @@ import {
    DollarSign, Tag, Layers, CheckCircle, AlertTriangle,
 } from "lucide-react";
 import axiosClient from "../../API/axiosClient";
+import LoadingPage from "../../components/LoadingPage";
 
 
 /* ── Status options ── */
@@ -164,6 +165,8 @@ export default function ProductAddPage() {
       setApiError("");
       setSuccess(false);
    };
+
+   if(loading) return <LoadingPage/>
 
    return (
       <>

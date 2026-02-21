@@ -11,6 +11,7 @@ import {checkAuth, logoutUser} from "../../store/slices/authSlice";
 import { updateUser } from "../../store/slices/userSlice";
 import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
 import { useNavigate } from "react-router";
+import LoadingPage from "../../components/LoadingPage";
 
 
 
@@ -257,7 +258,7 @@ export default function ProfilePage() {
    ];
 
    if (loading || !user)
-      return <>Loading Profile...</>
+      return <LoadingPage/>
 
    return (
       <>

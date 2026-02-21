@@ -98,9 +98,9 @@ function RemoveModal({ onClose, onConfirm, loading }) {
 
 /* ─── Main Page ─── */
 export default function SellerPage() {
-   /* In a real app: const { user } = useSelector(s => s.auth) */
-   const [isSeller, setIsSeller] = useState(false);  // flip to true to preview seller dashboard view
 
+
+   const [isSeller, setIsSeller] = useState(false); 
    /* Register form */
    const [storeName, setStoreName] = useState("");
    const [storeDescription, setStoreDescription] = useState("");
