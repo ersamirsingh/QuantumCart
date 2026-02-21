@@ -10,6 +10,7 @@ import sellerRouter from "./Routers/SellerRoutes";
 import productRouter from "./Routers/ProductRoutes";
 import orderRouter from "./Routers/OrderRoutes";
 import cors from 'cors'
+import cartRouter from "./Routers/CartRoutes";
 
 
 
@@ -28,6 +29,7 @@ app.use('/user', userRouter)
 app.use('/seller', sellerRouter)
 app.use('/product', productRouter)
 app.use('/order', orderRouter)
+app.use('/cart', cartRouter)
 
 
 
