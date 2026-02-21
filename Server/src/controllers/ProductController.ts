@@ -160,6 +160,7 @@ const updateProduct = async (req: Request, res: Response) => {
       if (price != null) updateData.price = price;
       if (discount != null) updateData.discount = discount;
       if (stock != null) updateData.stock = stock;
+      if (stock===0) updateData.status = "OUT_OF_STOCK";
 
       if (Array.isArray(images)) {
          updateData.images = images; // replace mode
