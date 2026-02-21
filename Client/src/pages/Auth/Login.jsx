@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router";
 import { loginUser } from "../../store/slices/authSlice";
 import { checkAuth } from "../../store/slices/authSlice";
+import LoadingPage from "../../components/LoadingPage";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -68,6 +69,8 @@ export default function Login() {
   };
 
   const handleGoogle = () => alert("Mock: Launch Google OAuth flow");
+
+  if(loading) return <LoadingPage/>
 
   return (
     <>

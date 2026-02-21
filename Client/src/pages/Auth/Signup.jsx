@@ -142,6 +142,8 @@ export default function Signup() {
     "Priority 24/7 support",
   ];
 
+  if(loading) return <LoadingPage/>
+
   return (
     <>
       <style>{`
