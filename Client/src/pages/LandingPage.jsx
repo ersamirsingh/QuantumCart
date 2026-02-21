@@ -2,15 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Zap, Search, ShoppingCart, Heart, Star, ArrowRight,
   ChevronLeft, ChevronRight, TruckIcon, Shield, RotateCcw,
-  Headphones, Bell, User, Menu, X, Sparkles, TrendingUp
+  Headphones, Bell, User, Menu, X, Sparkles, TrendingUp, LogIn
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
+import { fetchCart } from "../store/slices/cartSlice";
+import LoadingPage from "../components/LoadingPage";
 
-
-
-const NAV_LINKS = ["Home", "Shop", "Deals", "Categories", "About"];
+const NAV_LINKS = [
+  { label: "Home", path: "/" },
+  { label: "Shop", path: "/products" },
+  { label: "Deals", path: "/deals" },
+  { label: "Categories", path: "/categories" },
+  { label: "About", path: "/about" },
+];
 
 const HERO_SLIDES = [
   {
@@ -93,7 +99,6 @@ const TRENDING = [
   { name: "Standing Desk Mat", price: 1099, img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80", rise: "+167%" },
 ];
 
-
 function Stars({ rating }) {
   return (
     <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -142,19 +147,31 @@ function ProductCard({ product }) {
   );
 }
 
-
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  // Redux state
+  const { user, loading } = useSelector((state) => state.auth);
+  const { cart } = useSelector((state) => state.cart);
+  
   const [heroIndex, setHeroIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [cartCount] = useState(3);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const timerRef = useRef(null);
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const {user} = useSelector(state=>state.auth);
+
+  // Fetch cart on mount if user is logged in
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCart());
+    }
+  }, [user, dispatch]);
+
+  // Calculate cart count from Redux
+  const cartCount = cart?.items?.filter(item => item.product)?.length || 0;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -180,6 +197,19 @@ export default function LandingPage() {
     setHeroIndex((heroIndex + n + HERO_SLIDES.length) % HERO_SLIDES.length);
     timerRef.current = setInterval(() => setHeroIndex((i) => (i + 1) % HERO_SLIDES.length), 5000);
   };
+
+  // Get initials for avatar
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
+
+  if(loading) return <LoadingPage/>
 
   return (
     <>
@@ -231,7 +261,7 @@ export default function LandingPage() {
           color: rgba(255,255,255,0.5); transition: color 0.2s, background 0.2s;
           white-space: nowrap;
         }
-        .qch-nav-links li a:hover {
+        .qch-nav-links li a:hover, .qch-nav-links li a.active {
           color: #fff; background: rgba(255,255,255,0.06);
         }
 
@@ -276,9 +306,9 @@ export default function LandingPage() {
         .qch-nav-btn:hover { background: rgba(255,255,255,0.07); color: #fff; }
         .qch-cart-badge {
           position: absolute; top: 5px; right: 5px;
-          width: 16px; height: 16px; border-radius: 50%;
+          min-width: 16px; height: 16px; border-radius: 50%;
           background: linear-gradient(135deg, #00c6ff, #a855f7);
-          font-size: 9px; font-weight: 800;
+          font-size: 9px; font-weight: 800; padding: 0 4px;
           display: flex; align-items: center; justify-content: center;
           color: #020408;
         }
@@ -286,6 +316,20 @@ export default function LandingPage() {
           display: flex;
         }
         @media(min-width:768px){ .qch-nav-menu { display: none; } }
+
+        /* Login button */
+        .qch-login-btn {
+          display: flex; align-items: center; gap: 6px;
+          padding: 8px 16px; border-radius: 10px; border: none;
+          background: linear-gradient(135deg, #00c6ff, #a855f7);
+          color: #020408; cursor: pointer;
+          font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .qch-login-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(0,198,255,0.3);
+        }
 
         /* Mobile menu */
         .qch-mobile-menu {
@@ -815,8 +859,15 @@ export default function LandingPage() {
           </NavLink>
 
           <ul className="qch-nav-links">
-            {NAV_LINKS.map((l) => (
-              <li key={l}><a href="#">{l}</a></li>
+            {NAV_LINKS.map((link) => (
+              <li key={link.label}>
+                <NavLink 
+                  to={link.path}
+                  className={({ isActive }) => isActive ? 'active' : ''}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
             ))}
           </ul>
 
@@ -828,69 +879,102 @@ export default function LandingPage() {
           </div>
 
           <div className="qch-nav-actions">
-            <button className="qch-nav-btn" aria-label="Wishlist"><Heart size={18} /></button>
-            <button className="qch-nav-btn" aria-label="Notifications"><Bell size={18} /></button>
-            <button className="qch-nav-btn" aria-label="Cart" style={{ position: "relative" }}>
-              <ShoppingCart size={18} />
-              <span className="qch-cart-badge">{cartCount}</span>
-            </button>
-            <div className="qch-profile-wrap" ref={profileRef}>
-              <button
-                className="qch-nav-btn"
-                aria-label="Profile"
-                aria-expanded={profileOpen}
-                onClick={() => setProfileOpen((o) => !o)}
-                style={profileOpen ? { background: "rgba(0,198,255,0.1)", color: "#00c6ff" } : {}}
-              >
-                <User size={18} />
-              </button>
+            {user && (
+              <>
+                <button className="qch-nav-btn" aria-label="Wishlist"><Heart size={18} /></button>
+                <button className="qch-nav-btn" aria-label="Notifications"><Bell size={18} /></button>
+                <button 
+                  className="qch-nav-btn" 
+                  aria-label="Cart"
+                  onClick={() => navigate("/cart")}
+                >
+                  <ShoppingCart size={18} />
+                  {cartCount > 0 && (
+                    <span className="qch-cart-badge">{cartCount}</span>
+                  )}
+                </button>
+              </>
+            )}
 
-              {profileOpen && (
-                <div className="qch-dropdown" role="menu">
-                  {/* User info header */}
-                  <div className="qch-dropdown-header">
-                    <div className="qch-profile-avatar overflow-hidden"><User size={18}/></div>
-                    <div style={{ overflow: "hidden" }}>
-                      <div className="qch-dropdown-name">{user?.name}</div>
-                      <div className="qch-dropdown-email">{user?.email}</div>
+            {user ? (
+              <div className="qch-profile-wrap" ref={profileRef}>
+                <button
+                  className="qch-nav-btn"
+                  aria-label="Profile"
+                  aria-expanded={profileOpen}
+                  onClick={() => setProfileOpen((o) => !o)}
+                  style={profileOpen ? { background: "rgba(0,198,255,0.1)", color: "#00c6ff" } : {}}
+                >
+                  <div className="qch-profile-avatar">
+                    {getInitials(user.name)}
+                  </div>
+                </button>
+
+                {profileOpen && (
+                  <div className="qch-dropdown" role="menu">
+                    <div className="qch-dropdown-header">
+                      <div className="qch-profile-avatar">{getInitials(user.name)}</div>
+                      <div style={{ overflow: "hidden" }}>
+                        <div className="qch-dropdown-name">{user.name}</div>
+                        <div className="qch-dropdown-email">{user.email}</div>
+                      </div>
+                    </div>
+
+                    <div className="qch-dropdown-items">
+                      <button className="qch-dropdown-item" role="menuitem" onClick={() => {
+                        navigate("/user/profile");
+                        setProfileOpen(false);
+                      }}>
+                        <span className="qch-dropdown-icon">👤</span> My Profile
+                      </button>
+                      <button className="qch-dropdown-item" role="menuitem" onClick={() => {
+                        navigate("/orders");
+                        setProfileOpen(false);
+                      }}>
+                        <span className="qch-dropdown-icon">📦</span> My Orders
+                      </button>
+                      <button className="qch-dropdown-item" role="menuitem" onClick={() => {
+                        navigate("/wishlist");
+                        setProfileOpen(false);
+                      }}>
+                        <span className="qch-dropdown-icon">❤️</span> Wishlist
+                      </button>
+                      <button className="qch-dropdown-item" role="menuitem" onClick={() => {
+                        navigate("/settings");
+                        setProfileOpen(false);
+                      }}>
+                        <span className="qch-dropdown-icon">⚙️</span> Settings
+                      </button>
+
+                      <div className="qch-dropdown-divider" />
+
+                      <button
+                        className="qch-dropdown-item danger"
+                        role="menuitem"
+                        onClick={() => {
+                          dispatch(logoutUser());
+                          setProfileOpen(false);
+                          navigate("/");
+                        }}
+                      >
+                        <span className="qch-dropdown-icon">🚪</span> Logout
+                      </button>
                     </div>
                   </div>
+                )}
+              </div>
+            ) : (
+              <button 
+                className="qch-login-btn" 
+                onClick={() => navigate("/auth/login")}
+              >
+                <LogIn size={16} /> Login
+              </button>
+            )}
 
-                  {/* Menu items */}
-                  <div className="qch-dropdown-items">
-                    <button className="qch-dropdown-item" role="menuitem" onClick={() => {
-                      navigate("/user/profile");
-                      setProfileOpen(false);
-                    }}>
-                      <span className="qch-dropdown-icon">👤</span> My Profile
-                    </button>
-                    <button className="qch-dropdown-item" role="menuitem" onClick={() => setProfileOpen(false)}>
-                      <span className="qch-dropdown-icon">📦</span> My Orders
-                    </button>
-                    <button className="qch-dropdown-item" role="menuitem" onClick={() => setProfileOpen(false)}>
-                      <span className="qch-dropdown-icon">❤️</span> Wishlist
-                    </button>
-                    <button className="qch-dropdown-item" role="menuitem" onClick={() => setProfileOpen(false)}>
-                      <span className="qch-dropdown-icon">⚙️</span> Settings
-                    </button>
-
-                    <div className="qch-dropdown-divider" />
-
-                    <button
-                      className="qch-dropdown-item danger"
-                      role="menuitem"
-                      onClick={() => {
-                        dispatch(logoutUser());
-                        setProfileOpen(false)
-                      }}
-                    >
-                      <span className="qch-dropdown-icon">🚪</span> Logout
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <button className="qch-nav-btn qch-nav-menu" onClick={() => setMenuOpen(true)}><Menu size={18} /></button>
+            <button className="qch-nav-btn qch-nav-menu" onClick={() => setMenuOpen(true)}>
+              <Menu size={18} />
+            </button>
           </div>
         </nav>
 
@@ -899,7 +983,27 @@ export default function LandingPage() {
           <button className="qch-mobile-menu-close" onClick={() => setMenuOpen(false)}>
             <X size={26} />
           </button>
-          {NAV_LINKS.map((l) => <a href="#" key={l} onClick={() => setMenuOpen(false)}>{l}</a>)}
+          {NAV_LINKS.map((link) => (
+            <NavLink 
+              to={link.path} 
+              key={link.label} 
+              onClick={() => setMenuOpen(false)}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+          {!user && (
+            <button 
+              className="qch-login-btn" 
+              style={{ marginTop: 20, width: "100%" }}
+              onClick={() => {
+                navigate("/auth/login");
+                setMenuOpen(false);
+              }}
+            >
+              <LogIn size={16} /> Login
+            </button>
+          )}
         </div>
 
         {/* ── HERO ── */}
@@ -921,10 +1025,14 @@ export default function LandingPage() {
                 <button
                   className="qch-hero-cta-primary"
                   style={{ background: `linear-gradient(135deg, ${slide.accent}, #a855f7)` }}
+                  onClick={() => navigate("/products")}
                 >
                   {slide.cta} <ArrowRight size={16} />
                 </button>
-                <button className="qch-hero-cta-secondary">
+                <button 
+                  className="qch-hero-cta-secondary"
+                  onClick={() => navigate("/deals")}
+                >
                   <TruckIcon size={14} /> Today's Deals
                 </button>
               </div>
@@ -975,7 +1083,9 @@ export default function LandingPage() {
               </div>
               <h2 className="qch-section-title">Shop by <span>Category</span></h2>
             </div>
-            <button className="qch-see-all">View all categories <ArrowRight size={13} /></button>
+            <button className="qch-see-all" onClick={() => navigate("/categories")}>
+              View all categories <ArrowRight size={13} />
+            </button>
           </div>
           <div style={{ height: 28 }} />
           <div className="qch-cats-grid">
@@ -1002,7 +1112,9 @@ export default function LandingPage() {
               <h2 className="qch-section-title">Handpicked <span>For You</span></h2>
               <p className="qch-section-sub">Curated by our AI engine based on what's trending right now.</p>
             </div>
-            <button className="qch-see-all">See all products <ArrowRight size={13} /></button>
+            <button className="qch-see-all" onClick={() => navigate("/products")}>
+              See all products <ArrowRight size={13} />
+            </button>
           </div>
           <div style={{ height: 28 }} />
           <div className="qch-products-grid">
@@ -1018,7 +1130,9 @@ export default function LandingPage() {
             <p className="qch-banner-sub">
               Jaw-dropping deals on 10,000+ products. Don't miss out — once it's gone, it's gone forever.
             </p>
-            <button className="qch-banner-cta">Grab the Deals <ArrowRight size={16} /></button>
+            <button className="qch-banner-cta" onClick={() => navigate("/deals")}>
+              Grab the Deals <ArrowRight size={16} />
+            </button>
           </div>
           <div className="qch-banner-counter">
             {[["08", "HRS"], ["34", "MIN"], ["22", "SEC"]].map(([n, l], i) => (
@@ -1042,7 +1156,9 @@ export default function LandingPage() {
               </div>
               <h2 className="qch-section-title">🔥 <span>Trending</span> Now</h2>
             </div>
-            <button className="qch-see-all">See all <ArrowRight size={13} /></button>
+            <button className="qch-see-all" onClick={() => navigate("/trending")}>
+              See all <ArrowRight size={13} />
+            </button>
           </div>
           <div style={{ height: 24 }} />
           <div className="qch-trending-grid">
