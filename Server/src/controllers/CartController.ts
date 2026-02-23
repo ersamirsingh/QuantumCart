@@ -198,3 +198,33 @@ export const getCart = async (req: Request, res: Response, next: NextFunction) =
       return res.status(500).json({ success: false, message: "Internal server error" }); (error);
    }
 };
+
+
+export const removeItemCompletely = async (req: Request, res: Response, next: NextFunction) => {
+   try {
+      const userId = new Types.ObjectId(res.locals.user._id);
+      const productId = new Types.ObjectId(req.params.productId);
+      if(!productId) 
+      return res.status(400).json({
+         success: false, 
+         message: "ProductId is required"
+      });
+
+      const updatedCart = await Cart.findOneAndUpdate(
+         { userId },
+         { $pull: { items: { productId } } },
+         { new: true }
+      );
+      if (!updatedCart) {
+         return res.status(404).json({ success: false, message: "Cart not found" });
+      }
+
+      return res.status(200).json({
+         success: true,
+         data: updatedCart,
+      })
+
+   } catch (error) {
+      return res.status(500).json({ success: false, message: "Internal server error" }); (error);
+   }
+}

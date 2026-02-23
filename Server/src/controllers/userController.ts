@@ -32,19 +32,14 @@ const updateUserInfo = async (req:Request, res: Response) : Promise<Response | v
    
    try {
       const user = res.locals.user;
-      if (!user) {
-         return res.status(404).json({ message: "User not found" });
-      }
-
       let { name, email } = req.body;
 
-      const updatedUser = await User.findByIdAndUpdate(user._id, { name, email }, { new: true, runValidators: true });
+      const updatedUser = await User.findByIdAndUpdate(user._id, { name, email }, { new: true, runValidators: true }).select('-password');
       if (!updatedUser) {
          return res.status(404).json({ message: "User not found" });
       }
 
       return res.status(200).json(updatedUser);
-
    }
    catch(err){
       res.status(500).json({

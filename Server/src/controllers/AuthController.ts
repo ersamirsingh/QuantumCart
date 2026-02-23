@@ -3,7 +3,7 @@ import { User } from "../models/User";
 import ValidateInfo from "../Utils/ValidateInfo";
 import bcrypt from 'bcrypt'
 import { UserRole } from "../models/User";
-import jwt,{JwtPayload} from 'jsonwebtoken';
+import jwt,{JwtPayload, SignOptions} from 'jsonwebtoken';
 import { redisClient } from "../config/Redis";
 import { Seller } from "../models/Seller";
 import { IUser } from "../models/User";
@@ -37,7 +37,7 @@ const Register = async ( req: Request, res: Response): Promise<Response> => {
 
       const user = await User.create({
          name,
-         email,
+         email:email.toLowerCase(),
          password: hashedPassword,
          role: role ? role : UserRole.CUSTOMER,
       });
@@ -54,8 +54,7 @@ const Register = async ( req: Request, res: Response): Promise<Response> => {
          throw new Error("JWT_SECRET is not defined");
       }
 
-      const Token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h'});
-
+      const Token = jwt.sign(payload, JWT_SECRET as string, {expiresIn: JWT_EXP as SignOptions["expiresIn"]});
       res.cookie("Token", Token, {
          httpOnly: true,
          secure: process.env.NODE_ENV === "production",
@@ -94,7 +93,7 @@ const Login = async (req: Request, res: Response) => {
          });
       }
 
-      const user = await User.findOne({email});
+      const user = await User.findOne({email:email.toLowerCase()});
       if (!user) {
          return res.status(404).json({
             message: "Invalid credentials",
@@ -115,8 +114,10 @@ const Login = async (req: Request, res: Response) => {
 
       const JWT_SECRET = process.env.JWT_SECRET;
       const JWT_EXP = process.env.JWT_EXP || "1h";
+      if(!JWT_EXP || !JWT_SECRET)
+         throw new Error('Internal server error');
 
-      const Token = jwt.sign(payload, JWT_SECRET as string, {expiresIn: '1h'});
+      const Token = jwt.sign(payload, JWT_SECRET as string, {expiresIn: JWT_EXP as SignOptions["expiresIn"]});
 
       res.cookie("Token", Token, {
          httpOnly: true,
