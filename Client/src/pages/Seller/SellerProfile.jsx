@@ -97,7 +97,7 @@ function RemoveModal({ onClose, onConfirm, loading }) {
 }
 
 /* ─── Main Page ─── */
-export default function SellerPage() {
+export default function SellerProfile() {
 
 
    const [isSeller, setIsSeller] = useState(false); 
