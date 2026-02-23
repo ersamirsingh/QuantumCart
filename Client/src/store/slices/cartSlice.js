@@ -49,11 +49,27 @@ export const removeFromCart = createAsyncThunk(
 );
 
 
+export const removeItemCompletely= createAsyncThunk(
+   "cart/removeItemCompletely",
+   async (productId, { rejectWithValue }) => {
+      try {
+         const res = await axiosClient.delete(`/cart/delete/${productId}`);
+         console.log(res.data)
+         return res.data.data.items;
+      } catch (error) {
+         return rejectWithValue(
+            error.response?.data?.message || error.message || "Failed to remove item"
+         );
+      }
+   }
+);
+
+
 export const clearCart = createAsyncThunk(
    "cart/clearCart",
    async (_, { rejectWithValue }) => {
       try {
-         const res = await axiosClient.delete("/cart");
+         const res = await axiosClient.delete("/cart/clear");
          return res.data.cart;
       } catch (error) {
          return rejectWithValue(
@@ -128,7 +144,6 @@ const cartSlice = createSlice({
             state.error = action.payload;
          })
 
-      builder
          .addCase(removeFromCart.pending, (state) => {
             state.removing = true;
             state.error = null;
@@ -144,7 +159,21 @@ const cartSlice = createSlice({
             state.error = action.payload;
          })
 
-      builder
+         .addCase(removeItemCompletely.pending, (state) => {
+            state.removing = true;
+            state.error = null;
+            state.successMessage = null;
+         })
+         .addCase(removeItemCompletely.fulfilled, (state, action) => {
+            state.removing = false;
+            state.cart = action.payload;
+            state.successMessage = "Item removed from cart";
+         })
+         .addCase(removeItemCompletely.rejected, (state, action) => {
+            state.removing = false;
+            state.error = action.payload;
+         })
+
          .addCase(clearCart.pending, (state) => {
             state.clearing = true;
             state.error = null;

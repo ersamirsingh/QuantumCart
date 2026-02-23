@@ -7,7 +7,6 @@ import {
 import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
-import { fetchCart } from "../store/slices/cartSlice";
 import LoadingPage from "../components/LoadingPage";
 
 const NAV_LINKS = [
@@ -153,25 +152,15 @@ export default function LandingPage() {
   
   // Redux state
   const { user, loading } = useSelector((state) => state.auth);
-  const { cart } = useSelector((state) => state.cart);
   
   const [heroIndex, setHeroIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  // const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const timerRef = useRef(null);
 
-  // Fetch cart on mount if user is logged in
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchCart());
-    }
-  }, [user, dispatch]);
-
-  // Calculate cart count from Redux
-  const cartCount = cart?.items?.filter(item => item.product)?.length || 0;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -889,10 +878,7 @@ export default function LandingPage() {
                   onClick={() => navigate("/cart")}
                 >
                   <ShoppingCart size={18} />
-                  {cartCount > 0 && (
-                    <span className="qch-cart-badge">{cartCount}</span>
-                  )}
-                </button>
+                </button> 
               </>
             )}
 
@@ -966,7 +952,7 @@ export default function LandingPage() {
             ) : (
               <button 
                 className="qch-login-btn" 
-                onClick={() => navigate("/auth/login")}
+                onClick={() => navigate("/login")}
               >
                 <LogIn size={16} /> Login
               </button>
@@ -997,7 +983,7 @@ export default function LandingPage() {
               className="qch-login-btn" 
               style={{ marginTop: 20, width: "100%" }}
               onClick={() => {
-                navigate("/auth/login");
+                navigate("/login");
                 setMenuOpen(false);
               }}
             >

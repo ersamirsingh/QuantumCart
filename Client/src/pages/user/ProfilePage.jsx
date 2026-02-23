@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import {
    Zap, User, Mail, Shield, Store, ArrowRight, CheckCircle,
    AlertTriangle, Edit3, Save, X, Trash2, Package, BarChart2,
@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import {checkAuth, logoutUser} from "../../store/slices/authSlice";
+import { checkAuth, logoutUser } from "../../store/slices/authSlice";
 import { updateUser } from "../../store/slices/userSlice";
 import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
 import { useNavigate } from "react-router";
@@ -16,10 +16,7 @@ import LoadingPage from "../../components/LoadingPage";
 
 
 
-/* ─────────────────────────────────────────────────────────
-   TINY ATOMS
-───────────────────────────────────────────────────────── */
-function Avatar({ name='$', size = 72 }) {
+function Avatar({ name = '$', size = 72 }) {
    const initials = name
       .split(" ")
       .map((w) => w[0])
@@ -95,9 +92,7 @@ function StatCard({ icon, label, value, color, bg }) {
    );
 }
 
-/* ─────────────────────────────────────────────────────────
-   REMOVE MODAL
-───────────────────────────────────────────────────────── */
+
 function RemoveModal({ onClose, onConfirm, loading }) {
    const [typed, setTyped] = useState("");
    const confirmed = typed === "REMOVE";
@@ -147,12 +142,10 @@ function RemoveModal({ onClose, onConfirm, loading }) {
    );
 }
 
-/* ─────────────────────────────────────────────────────────
-   MAIN COMPONENT
-───────────────────────────────────────────────────────── */
+
 export default function ProfilePage() {
 
-   const {user} = useSelector(state => state.auth);
+   const { user } = useSelector(state => state.auth);
    const seller = user?.role === 'SELLER' ? user : null;
 
    const dispatch = useDispatch()
@@ -191,23 +184,30 @@ export default function ProfilePage() {
    const [verifySent, setVerifySent] = useState(false);
 
    const handleSaveProfile = async () => {
-      if (!editName.trim()) return;
-      setEditSaving(true);
-      dispatch(updateUser({ name: editName.trim(), email: editEmail.trim() }));
-      setEditing(false);
-      setEditSaving(false);
+
+      if (!editName.trim() && !editEmail.trim()) return;
+      try {
+         setEditSaving(true);
+         await dispatch(updateUser({name: editName.trim(),email: editEmail.trim() })).unwrap();
+         dispatch(checkAuth());
+         setEditing(false);
+      } catch (error){
+         alert("Profile update failed:", error);
+      } finally {
+         setEditSaving(false);
+      }
    };
 
    const handleSellerRegister = async () => {
-      if (!storeName.trim()) { 
-         setStoreNameErr("Store name is required"); 
-         return; 
+      if (!storeName.trim()) {
+         setStoreNameErr("Store name is required");
+         return;
       }
-      if (storeName.length < 3) { 
-         setStoreNameErr("Minimum 3 characters"); 
-         return; 
+      if (storeName.length < 3) {
+         setStoreNameErr("Minimum 3 characters");
+         return;
       }
-      setStoreNameErr(""); 
+      setStoreNameErr("");
       setRegLoading(true);
       try {
          await dispatch(registerSeller({ storeName, storeDescription: storeDesc })).unwrap();
@@ -227,8 +227,8 @@ export default function ProfilePage() {
    const handleRemoveSeller = async () => {
       setRemoveLoading(true);
       try {
-         await dispatch(removeSeller()).unwrap();
-         await dispatch(checkAuth()).unwrap();
+         dispatch(removeSeller());
+         dispatch(checkAuth());
          setShowRemove(false)
       } catch (error) {
          alert(error.message);
@@ -258,7 +258,7 @@ export default function ProfilePage() {
    ];
 
    if (loading || !user)
-      return <LoadingPage/>
+      return <LoadingPage />
 
    return (
       <>
@@ -1148,10 +1148,10 @@ export default function ProfilePage() {
                         </p>
                         <div className="pf-qactions">
                            {[
-                              { ico: "👁️", link:'/seller/products', label: 'ViewProduct', sub: "List a new item", bg: "rgba(0,198,255,0.09)", color: "#00c6ff" },
-                              { ico: "📊", link:'/seller/analytics', label: "Analytics", sub: "View sales & traffic", bg: "rgba(168,85,247,0.09)", color: "#a855f7" },
-                              { ico: "📦", link:'/seller/orders', label: "Manage Orders", sub: "Fulfill & track orders", bg: "rgba(245,158,11,0.09)", color: "#f59e0b" },
-                              { ico: "⚙️", link:'/seller/store', label: "Store Settings", sub: "Edit profile & policies", bg: "rgba(34,197,94,0.09)", color: "#22c55e" },
+                              { ico: "👁️", link: '/seller/products', label: 'ViewProduct', sub: "List a new item", bg: "rgba(0,198,255,0.09)", color: "#00c6ff" },
+                              { ico: "📊", link: '/seller/analytics', label: "Analytics", sub: "View sales & traffic", bg: "rgba(168,85,247,0.09)", color: "#a855f7" },
+                              { ico: "📦", link: '/seller/orders', label: "Manage Orders", sub: "Fulfill & track orders", bg: "rgba(245,158,11,0.09)", color: "#f59e0b" },
+                              { ico: "⚙️", link: '/seller/store', label: "Store Settings", sub: "Edit profile & policies", bg: "rgba(34,197,94,0.09)", color: "#22c55e" },
                            ].map((a) => (
                               <button className="pf-qaction" key={a.label} onClick={() => navigate(a.link)}>
                                  <div className="pf-qaction-ico" style={{ background: a.bg, color: a.color }}>{a.ico}</div>

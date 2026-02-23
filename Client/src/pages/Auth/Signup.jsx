@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router";
 import { registerUser } from "../../store/slices/authSlice";
 import { checkAuth } from "../../store/slices/authSlice";
-
+import LoadingPage from "../../components/LoadingPage";
 
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
