@@ -15,19 +15,19 @@ import LandingPage from './pages/LandingPage';
 import NotFoundPage from './components/NotFoundPage.jsx';
 import ProfilePage from './pages/user/ProfilePage';
 import SellerProfile from './pages/Seller/SellerProfile.jsx';
-import AllProductsPage from './pages/Product/AllProductPage';
+import SellerAllProduct from './pages/Product/SellerAllProduct.jsx';
 import ProductViewPage from './pages/Product/ProductViewPage';
 import ProductAddPage from './pages/Product/ProductAddPage';
 import ProductUpdatePage from './pages/Product/ProductUpdatePage';
 import ProductDeletePage from './pages/Product/productDeletePage';
 import CartPage from './pages/Cart/CartPage';
+import CheckoutPage from './pages/Order/CheckoutPage.jsx';
 // import CheckoutPage from './pages/Cart/CheckoutPage';
 // import OrdersPage from './pages/Orders/OrdersPage';
 // import OrderDetailPage from './pages/Orders/OrderDetailPage';
 
 
 
-// ─── Route Guard Components ───────────────────────────────────────────────────
 
 const PrivateRoute = ({ children, isAuthenticated }) =>
   isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -86,7 +86,7 @@ function App() {
           path="/seller/products"
           element={
             <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
-              <AllProductsPage />
+              <SellerAllProduct />
             </RoleRoute>
           }
         />
@@ -132,16 +132,16 @@ function App() {
             </RoleRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/checkout"
           element={
-            <RoleRoute isAuthenticated={isAuthenticated} user={user} role="CUSTOMER" fallback="/login">
+            <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["CUSTOMER","SELLER"]} fallback="/login">
               <CheckoutPage />
             </RoleRoute>
           }
         />
 
-        {/* ── Orders ── */}
+        {/* ── Orders ──
         {/* <Route
           path="/orders"
           element={
@@ -186,14 +186,6 @@ function App() {
             </RoleRoute>
           }
         /> */}
-        <Route
-          path="/seller/products"
-          element={
-            <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
-              <AllProductsPage />
-            </RoleRoute>
-          }
-        />
 
         <Route path="*" element={<NotFoundPage />} />
 

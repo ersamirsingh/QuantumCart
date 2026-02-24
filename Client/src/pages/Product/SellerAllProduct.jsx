@@ -141,7 +141,7 @@ function ProductRow({ product, index, onView, onEdit }) {
 }
 
 /* ── Main Page ── */
-export default function AllProductsPage() {
+export default function SellerAllProduct() {
    const navigate = useNavigate();
 
    const [products, setProducts] = useState([]);
@@ -155,7 +155,7 @@ export default function AllProductsPage() {
       setLoading(true); 
       setError("");
       try {
-         const res = await axiosClient.get("/product/all");
+         const res = await axiosClient.get("/seller/products");
          setProducts(res.data);
       } catch (e) {
          setError(e.message || "Something went wrong");
