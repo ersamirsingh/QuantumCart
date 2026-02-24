@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Order, OrderStatus, PaymentStatus } from "../models/Order";
-
+import { User } from "../models/User";
 
 
 
@@ -9,7 +9,8 @@ export const makeOrder = async (req: Request, res: Response) => {
    try {
       
       const userId = res.locals.user?._id;
-      const { items, shippingAddress } = req.body;
+      const { items, addressId } = req.body;
+      const shippingAddress = await User.findOne({ _id: userId,"addresses._id": addressId},{ "addresses.$": 1 });
 
       if (!items || items.length === 0) {
          return res.status(400).json({ message: "Invalid order data" });
@@ -18,11 +19,11 @@ export const makeOrder = async (req: Request, res: Response) => {
       let totalAmount = 0;
 
       for (let item of items) {
-         if (!item.sellerId || !item.productId || item.quantity <= 0) {
+         if (!item.productId || item.quantity <= 0) {
             return res.status(400).json({ message: "Invalid order data" });
          }
 
-         totalAmount += item.quantity * item.priceAtPurchase;
+         totalAmount += item.quantity * item.price;
       }
 
       const order = await Order.create({
@@ -114,6 +115,17 @@ export const cancelOrder = async (req: Request, res: Response) => {
       });
    }
 };
+
+
+export const fetchOrder = async (req: Request, res: Response) => {
+   
+   try {
+      
+
+   } catch (error) {
+      
+   }
+}
 
 
 
