@@ -22,7 +22,7 @@ import ProductUpdatePage from './pages/Product/ProductUpdatePage';
 import ProductDeletePage from './pages/Product/productDeletePage';
 import CartPage from './pages/Cart/CartPage';
 import CheckoutPage from './pages/Order/CheckoutPage.jsx';
-// import CheckoutPage from './pages/Cart/CheckoutPage';
+import OrdersPage from './pages/Order/OrdersPage.jsx';
 // import OrdersPage from './pages/Orders/OrdersPage';
 // import OrderDetailPage from './pages/Orders/OrderDetailPage';
 
@@ -141,8 +141,8 @@ function App() {
           }
         />
 
-        {/* ── Orders ──
-        {/* <Route
+        * ── Orders ──
+        * <Route
           path="/orders"
           element={
             <PrivateRoute isAuthenticated={isAuthenticated}>
@@ -150,7 +150,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/orders/:id"
           element={
             <PrivateRoute isAuthenticated={isAuthenticated}>
