@@ -59,42 +59,6 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
 
 
 
-
-// const removeProduct = async (req: Request, res: Response) => {
-
-//    try {
-
-//       const productId = req.params.productId;
-//       if(!productId)
-//          return res.status(400).json({message: "Missing required fields"});
-
-//       const product = await Product.findByIdAndDelete(productId);
-//       if(!product)
-//          return res.status(404).json({message: "Product not found"});
-
-//       const seller = await Seller.findById(product.sellerId);
-//       if(!seller)
-//          return res.status(404).json({message: "Seller not found"});
-
-//       const index = seller.products.findIndex((id) => id.toString() === product._id.toString());
-//       if (index > -1) {
-//          seller.products.splice(index, 1);
-//          await seller.save();
-//       }
-
-//       return res.status(200).json({message: "Product deleted successfully"});
-
-//    } catch (error) {
-
-//       return res.status(500).json({
-//          message:
-//             error instanceof Error ? error.message : "Internal server error"
-//       });
-
-//    }
-// }
-
-
 const removeProduct = async (req: Request, res: Response) => {
    try {
       const { productId } = req.params;
@@ -199,8 +163,6 @@ const updateProduct = async (req: Request, res: Response) => {
 
 
 
-
-
 const getSellerProduct = async (req: Request, res: Response) => {
 
    try {
@@ -233,4 +195,16 @@ const getProductById = async (req: Request, res: Response) => {
 
 
 
-export { addProduct, removeProduct, updateProduct, getSellerProduct, getProductById }
+const getAllProducts = async (req: Request, res: Response) =>{
+
+   try {
+      
+      const products = await Product.find();
+      return res.status(200).json(products);
+   } catch (error) {
+      res.status(500).json({message: "Internal server error"})
+   }
+}
+
+
+export { addProduct, removeProduct, updateProduct, getSellerProduct, getProductById, getAllProducts }
