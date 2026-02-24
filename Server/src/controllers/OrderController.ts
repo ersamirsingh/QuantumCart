@@ -79,9 +79,10 @@ export const cancelOrder = async (req: Request, res: Response) => {
    try {
       const userId = res.locals.user?._id;
       const { orderId } = req.params;
+      if(!orderId)
+         return res.status(400).json({message: "Missing required fields"});
 
       const order = await Order.findOne({ _id: orderId, userId });
-
       if (!order) {
          return res.status(404).json({ message: "Order not found" });
       }
@@ -90,10 +91,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
          return res.status(400).json({ message: "Order already cancelled" });
       }
 
-      if (
-         order.orderStatus === OrderStatus.SHIPPED ||
-         order.orderStatus === OrderStatus.DELIVERED
-      ) {
+      if (order.orderStatus === OrderStatus.SHIPPED ||order.orderStatus === OrderStatus.DELIVERED) {
          return res.status(400).json({
             message: "Order cannot be cancelled after shipping",
          });

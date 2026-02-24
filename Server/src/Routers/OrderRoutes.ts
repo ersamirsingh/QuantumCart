@@ -8,7 +8,7 @@ import { shipOrder } from "../controllers/ShipController";
 const orderRouter: Router = Router();
 
 orderRouter.post('/create', authenticateUser, makeOrder);
-orderRouter.post('/cancel', authenticateUser, cancelOrder);
+orderRouter.patch('/cancel/:orderId', authenticateUser, cancelOrder);
 orderRouter.post('/confirm', authenticateSeller, confirmOrder);
 orderRouter.post('/ship', authenticateSeller, shipOrder)
 
