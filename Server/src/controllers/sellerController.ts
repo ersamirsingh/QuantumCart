@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 
 
-const sellerRegister = async (req: Request, res: Response) => {
+export const sellerRegister = async (req: Request, res: Response) => {
 
    try {
       
@@ -38,8 +38,7 @@ const sellerRegister = async (req: Request, res: Response) => {
 
 
 
-
-const removeSeller = async (req: Request, res: Response) => {
+export const removeSeller = async (req: Request, res: Response) => {
    const session = await mongoose.startSession();
    session.startTransaction();
 
@@ -83,5 +82,3 @@ const removeSeller = async (req: Request, res: Response) => {
 };
 
 
-
-export {sellerRegister, removeSeller}

@@ -1,11 +1,10 @@
-import { Request, Response } from "express"
-import { Product } from "../models/Product";
+import { Request, Response } from "express";
+import mongoose from 'mongoose';
 import { Seller } from "../models/Seller";
-import mongoose from 'mongoose'
+import { Product } from "../models/Product";
 
 
-
-const addProduct = async (req: Request, res: Response): Promise<Response | void> => {
+export const addProduct = async (req: Request, res: Response): Promise<Response | void> => {
    try {
 
       let { name, description, price, discount, stock, images } = req.body || {};
@@ -59,7 +58,7 @@ const addProduct = async (req: Request, res: Response): Promise<Response | void>
 
 
 
-const removeProduct = async (req: Request, res: Response) => {
+export const removeProduct = async (req: Request, res: Response) => {
    try {
       const { productId } = req.params;
       const sellerId = res.locals.user._id;
@@ -103,7 +102,7 @@ const removeProduct = async (req: Request, res: Response) => {
 
 
 
-const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response) => {
    try {
       const { productId } = req.params;
       if (!productId)
@@ -163,7 +162,7 @@ const updateProduct = async (req: Request, res: Response) => {
 
 
 
-const getSellerProduct = async (req: Request, res: Response) => {
+export const getSellerProduct = async (req: Request, res: Response) => {
 
    try {
       const products = await Product.find({ sellerId: res.locals.user?._id })
@@ -177,7 +176,7 @@ const getSellerProduct = async (req: Request, res: Response) => {
 
 
 
-const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: Request, res: Response) => {
 
    try {
       const productId = req.params.productId;
@@ -195,7 +194,7 @@ const getProductById = async (req: Request, res: Response) => {
 
 
 
-const getAllProducts = async (req: Request, res: Response) =>{
+export const getAllProducts = async (req: Request, res: Response) =>{
 
    try {
       
@@ -207,4 +206,5 @@ const getAllProducts = async (req: Request, res: Response) =>{
 }
 
 
-export { addProduct, removeProduct, updateProduct, getSellerProduct, getProductById, getAllProducts }
+
+
