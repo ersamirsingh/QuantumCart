@@ -77,9 +77,9 @@ export const removeFromCart = async (
     session.startTransaction();
 
     const userId = res.locals.user?._id;
-    const { productId } = req.params;
+    const productId = new Types.ObjectId(req.params.productId as string);
 
-    if (!productId) {
+    if (!Types.ObjectId.isValid(productId)) {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({
@@ -109,7 +109,7 @@ export const removeFromCart = async (
     }
 
     const cartItem = cart.items.find(
-      item => item.productId.toString() === productId
+      item => item.productId === productId
     );
 
     if (!cartItem) {
@@ -216,7 +216,7 @@ export const getCart = async (req: Request, res: Response) => {
 export const removeItemCompletely = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
-    const productId = new Types.ObjectId(req.params.productId);
+    const productId = new Types.ObjectId(req.params.productId as string);
     if (!Types.ObjectId.isValid(req.params.productId)) {
       return res.status(400).json({
         success: false,

@@ -49,7 +49,7 @@ export const makeOrder = async (req: Request, res: Response) => {
 
 export const confirmOrder = async (req: Request, res: Response) => {
   try {
-    const orderId = new Types.ObjectId(req.params.orderId);
+    const orderId = new Types.ObjectId(req.params.orderId as string);
     if (!orderId) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
@@ -71,7 +71,7 @@ export const confirmOrder = async (req: Request, res: Response) => {
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user?._id);
-    const orderId = new Types.ObjectId(req.params.orderId);
+    const orderId = new Types.ObjectId(req.params.orderId as string);
     if (!orderId)
       return res.status(400).json({ message: 'Missing required fields' });
 

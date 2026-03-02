@@ -58,7 +58,7 @@ export const addProduct = async ( req: Request, res: Response ): Promise<Respons
 export const removeProduct = async (req: Request, res: Response) => {
 
   try {
-    const productId = new Types.ObjectId(req.params.productId);
+    const productId = new Types.ObjectId(req.params.productId as string);
     const sellerId = new Types.ObjectId(res.locals.user._id);
 
     if (!Types.ObjectId.isValid(productId)) {
@@ -100,7 +100,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
   try {
 
-    const productId = new Types.ObjectId(req.params.productId);
+    const productId = new Types.ObjectId(req.params.productId as string);
     if (!Types.ObjectId.isValid(productId))
       return res.status(400).json({ message: 'Missing productId' });
 
@@ -166,7 +166,7 @@ export const getSellerProduct = async (req: Request, res: Response) => {
 export const getProductById = async (req: Request, res: Response) => {
 
   try {
-    const productId = new Types.ObjectId(req.params.productId);
+    const productId = new Types.ObjectId(req.params.productId as string);
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
