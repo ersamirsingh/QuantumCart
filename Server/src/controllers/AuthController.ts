@@ -58,7 +58,7 @@ const Register = async (req: Request, res: Response): Promise<Response> => {
     res.cookie('Token', Token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: Number(process.env.JWT_MAX_AGE),
     });
 
@@ -118,7 +118,7 @@ const Login = async (req: Request, res: Response) => {
     res.cookie('Token', Token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: Number(process.env.JWT_MAX_AGE),
     });
 
