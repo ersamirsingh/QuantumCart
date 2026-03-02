@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-import connectMongo from './Config/MongoDB';
-import connectRedis from './Config/Redis';
+import connectMongo from './config/MongoDB';
+import connectRedis from './config/Redis';
 import authRouter from './routes/AuthRoutes';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/UserRoutes';

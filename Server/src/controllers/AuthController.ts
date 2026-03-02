@@ -4,7 +4,7 @@ import ValidateInfo from '../utils/ValidateInfo';
 import bcrypt from 'bcrypt';
 import { UserRole } from '../models/User';
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import { redisClient } from '../Config/Redis';
+import { redisClient } from '../config/Redis';
 import { Seller } from '../models/Seller';
 import { IUser } from '../models/User';
 
