@@ -181,7 +181,7 @@ export default function ProductUpdatePage() {
          setOriginal((prev) => ({ ...prev, ...payload }));
          setSuccess(true);
          setTimeout(() => {
-            navigate(`/product/${res.data._id}`);
+            navigate(`/seller/product/${res.data._id}`);
          }, 1000);
       } catch (e) {
          setApiError(e.response?.data?.message || e.message || "Failed to update product");

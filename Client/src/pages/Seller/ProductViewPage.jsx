@@ -227,10 +227,10 @@ export default function ProductViewPage() {
 
                   {/* Action buttons */}
                   <div className="pv-actions">
-                     <button className="pv-btn-edit" onClick={() => navigate(`/product/edit/${p._id}`)}>
+                     <button className="pv-btn-edit" onClick={() => navigate(`/seller/product/edit/${p._id}`)}>
                         <Edit3 size={14} /> Edit Product
                      </button>
-                     <button className="pv-btn-delete" onClick={() => navigate(`/product/delete/${p._id}`)}>
+                     <button className="pv-btn-delete" onClick={() => navigate(`/seller/product/delete/${p._id}`)}>
                         <Trash2 size={14} /> Delete
                      </button>
                   </div>
@@ -434,10 +434,10 @@ function Shell({ children, product, navigate }) {
                <div className="pv-nav-spacer" />
                {product && navigate && (
                   <div className="pv-nav-actions">
-                     <button className="pv-nav-btn-edit" onClick={() => navigate(`/product/edit/${product._id}`)}>
+                     <button className="pv-nav-btn-edit" onClick={() => navigate(`/seller/product/edit/${product._id}`)}>
                         <Edit3 size={13} /> Edit
                      </button>
-                     <button className="pv-nav-btn-delete" onClick={() => navigate(`/product/delete/${product._id}`)}>
+                     <button className="pv-nav-btn-delete" onClick={() => navigate(`/seller/product/delete/${product._id}`)}>
                         <Trash2 size={13} /> Delete
                      </button>
                   </div>

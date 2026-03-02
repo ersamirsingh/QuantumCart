@@ -148,7 +148,7 @@ export default function ProductAddPage() {
          setProduct(res.data);
          setSuccess(true);
          setTimeout(() => {
-            navigate(`/product/${res.data._id}`)
+            navigate(`/seller/product/${res.data._id}`)
          }, 100);
       } catch (e) {
          setApiError(e.message);
