@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { redisClient } from '../Config/Redis';
-import { User } from '../Models/User';
+import { User } from '../models/User';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 export interface IPayload extends JwtPayload {

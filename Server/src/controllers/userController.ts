@@ -1,13 +1,15 @@
-import { User } from '../Models/User';
+import { User } from '../models/User';
 import { Request, Response } from 'express';
-import ValidateInfo from '../Utils/ValidateInfo';
+import ValidateInfo from '../utils/ValidateInfo';
 import bcrypt from 'bcrypt';
-import { Seller } from '../Models/Seller';
+import { Seller } from '../models/Seller';
 import { Types } from 'mongoose';
-import { Order } from '../Models/Order';
+import { Order } from '../models/Order';
 
-const userInfo = async (req: Request, res: Response ): Promise<Response | void> => {
-
+const userInfo = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   try {
     const user = res.locals.user;
     if (!user) {
@@ -28,7 +30,10 @@ const userInfo = async (req: Request, res: Response ): Promise<Response | void> 
   }
 };
 
-const updateUserInfo = async (req: Request, res: Response): Promise<Response | void> => {
+const updateUserInfo = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   try {
     const user = res.locals.user;
     let { name, email } = req.body;

@@ -3,7 +3,7 @@ import {
   getSellerProduct,
   getProductById,
   getAllProducts,
-} from '../Controllers/ProductController';
+} from '../controllers/ProductController';
 import authenticateUser from '../Middleware/AuthenticateUser';
 
 const productRouter: Router = Router();

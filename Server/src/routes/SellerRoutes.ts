@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authenticateUser from '../Middleware/AuthenticateUser';
-import { sellerRegister, removeSeller } from '../Controllers/SellerController';
+import { sellerRegister, removeSeller } from '../controllers/SellerController';
 import authenticateSeller from '../Middleware/AuthenticateSeller';
 import {
   addProduct,
@@ -8,7 +8,7 @@ import {
   getSellerProduct,
   removeProduct,
   updateProduct,
-} from '../Controllers/ProductController';
+} from '../controllers/ProductController';
 
 const sellerRouter: Router = Router();
 

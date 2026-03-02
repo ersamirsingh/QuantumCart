@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { Order, OrderStatus, PaymentStatus } from '../Models/Order';
-import { User } from '../Models/User';
+import { Order, OrderStatus, PaymentStatus } from '../models/Order';
+import { User } from '../models/User';
 import { Types } from 'mongoose';
-
 
 export const makeOrder = async (req: Request, res: Response) => {
   try {

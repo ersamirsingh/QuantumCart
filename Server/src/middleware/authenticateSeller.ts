@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { redisClient } from '../Config/Redis';
 import jwt from 'jsonwebtoken';
 import { IPayload } from './AuthenticateUser';
-import { User, UserRole } from '../Models/User';
-import { Seller } from '../Models/Seller';
+import { User, UserRole } from '../models/User';
+import { Seller } from '../models/Seller';
 
 const authenticateSeller = async (
   req: Request,

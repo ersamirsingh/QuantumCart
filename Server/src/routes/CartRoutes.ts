@@ -5,7 +5,7 @@ import {
   clearCart,
   removeFromCart,
   removeItemCompletely,
-} from '../Controllers/CartController';
+} from '../controllers/CartController';
 import authenticateUser from '../Middleware/AuthenticateUser';
 const cartRouter = Router();
 

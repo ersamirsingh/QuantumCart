@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Product } from '../Models/Product';
-import { Review } from '../Models/Review';
+import { Product } from '../models/Product';
+import { Review } from '../models/Review';
 import { Types } from 'mongoose';
 
 export const reviewProduct = async (req: Request, res: Response) => {
@@ -27,8 +27,10 @@ export const reviewProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateReview = async ( req: Request, res: Response): Promise<Response | void> => {
-
+export const updateReview = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   try {
     const productId = new Types.ObjectId(req.params.productId);
     if (!productId)

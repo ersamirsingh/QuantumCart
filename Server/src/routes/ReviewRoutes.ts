@@ -4,7 +4,7 @@ import {
   reviewProduct,
   updateReview,
   removeReview,
-} from '../Controllers/ReviewController';
+} from '../controllers/ReviewController';
 
 const reviewRouter: Router = Router();
 

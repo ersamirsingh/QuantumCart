@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Order, OrderStatus } from '../Models/Order';
-import { Shipment } from '../Models/Shipment';
+import { Order, OrderStatus } from '../models/Order';
+import { Shipment } from '../models/Shipment';
 import { randomBytes } from 'crypto';
 import { Types } from 'mongoose';
 

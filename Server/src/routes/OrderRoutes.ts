@@ -4,9 +4,9 @@ import {
   cancelOrder,
   confirmOrder,
   makeOrder,
-} from '../Controllers/OrderController';
+} from '../controllers/OrderController';
 import authenticateSeller from '../Middleware/AuthenticateSeller';
-import { shipOrder } from '../Controllers/ShipController';
+import { shipOrder } from '../controllers/ShipController';
 
 const orderRouter: Router = Router();
 

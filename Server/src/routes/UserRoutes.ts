@@ -6,7 +6,7 @@ import {
   addAddress,
   getAddresses,
   fetchMyOrders,
-} from '../Controllers/UserController';
+} from '../controllers/UserController';
 
 const userRouter: Router = Router();
 

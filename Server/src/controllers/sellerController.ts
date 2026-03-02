@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { Seller } from '../Models/Seller';
-import { User, UserRole } from '../Models/User';
-import { Product } from '../Models/Product';
+import { Seller } from '../models/Seller';
+import { User, UserRole } from '../models/User';
+import { Product } from '../models/Product';
 import mongoose from 'mongoose';
 
 export const sellerRegister = async (req: Request, res: Response) => {
-  
   try {
     const { storeName, storeDescription } = req.body || {};
     if (!storeName || !storeDescription) {
