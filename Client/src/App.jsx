@@ -23,6 +23,8 @@ import ProductDeletePage from './pages/Seller/ProductDeletePage.jsx';
 import CartPage from './pages/Cart/CartPage';
 import CheckoutPage from './pages/Order/CheckoutPage.jsx';
 import OrdersPage from './pages/Order/OrdersPage.jsx';
+import ProductsPage from './pages/Product/ProductsPage.jsx';
+import DisplayProductPage from './pages/Product/DisplayProductPage.jsx';
 // import OrdersPage from './pages/Orders/OrdersPage';
 // import OrderDetailPage from './pages/Orders/OrderDetailPage';
 
@@ -77,7 +79,15 @@ function App() {
           path="/products"
           element={
             <PrivateRoute isAuthenticated={isAuthenticated}>
-              <NotFoundPage />
+              <ProductsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/product/:id"
+          element={
+            <PrivateRoute isAuthenticated={isAuthenticated}>
+              <DisplayProductPage />
             </PrivateRoute>
           }
         />
@@ -92,7 +102,7 @@ function App() {
         />
 
         <Route
-          path="/product/add"
+          path="/seller/product/add"
           element={
             <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
               <ProductAddPage />
@@ -100,7 +110,7 @@ function App() {
           }
         />
         <Route
-          path="/product/edit/:id"
+          path="/seller/product/edit/:id"
           element={
             <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
               <ProductUpdatePage />
@@ -108,7 +118,7 @@ function App() {
           }
         />
         <Route
-          path="/product/delete/:id"
+          path="/seller/product/delete/:id"
           element={
             <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
               <ProductDeletePage />
@@ -116,11 +126,11 @@ function App() {
           }
         />
         <Route
-          path="/product/:id"
+          path="/seller/product/:id"
           element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
+            <RoleRoute isAuthenticated={isAuthenticated}>
               <ProductViewPage />
-            </PrivateRoute>
+            </RoleRoute>
           }
         />
 
@@ -150,14 +160,6 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* <Route
-          path="/orders/:id"
-          element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <OrderDetailPage />
-            </PrivateRoute>
-          }
-        />  */}
 
         {/* ── User Profile ── */}
         <Route
