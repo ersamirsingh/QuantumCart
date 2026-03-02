@@ -24,7 +24,7 @@ const Register = async (req: Request, res: Response): Promise<Response> => {
       return res.status(400).json({ message });
     }
 
-    const existedUser = await User.findOne({ email });
+    const existedUser = await User.findOne({ email:email.toLowerCase().trim() });
     if (existedUser) {
       return res.status(400).json({
         message: 'User already exists',
@@ -88,7 +88,7 @@ const Login = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
       return res.status(404).json({
         message: 'Invalid credentials',
@@ -148,7 +148,9 @@ const Logout = async (req: Request, res: Response) => {
       });
     }
 
-    const payload = jwt.decode(Token) as JwtPayload;
+    const JWT_SECRET = process.env.JWT_SECRET as string;
+    if(!JWT_SECRET) throw new Error('Internal server error');
+    const payload = jwt.verify(Token, JWT_SECRET) as JwtPayload;
     if (!payload) {
       return res.status(401).json({
         message: 'Unauthorized',

@@ -14,6 +14,8 @@ function selectCourier(orderWeight: number): string {
   return 'FedEx';
 }
 
+
+
 function generateTrackingNumber(courierName: string): string {
   const prefix = courierName.slice(0, 3).toUpperCase();
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -22,9 +24,17 @@ function generateTrackingNumber(courierName: string): string {
   return `${prefix}-${date}-${uniqueId}`;
 }
 
+
+
 export const shipOrder = async (req: Request, res: Response) => {
+
   try {
+
     const orderId = new Types.ObjectId(req.body.orderId);
+    if(!Types.ObjectId.isValid(orderId)){
+      return res.status(400).json({ message: 'Invalid order id' });
+    }
+
     const { orderWeight } = req.body || {};
     if (!orderId || !orderWeight) {
       return res.status(400).json({ message: 'Missing required fields' });

@@ -6,20 +6,15 @@ import { Seller } from '../models/Seller';
 import { Types } from 'mongoose';
 import { Order } from '../models/Order';
 
-const userInfo = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+const userInfo = async ( req: Request, res: Response ): Promise<Response | void> => {
+
   try {
     const user = res.locals.user;
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const seller = await Seller.findOne({ userId: user._id }).populate(
-      'userId',
-      'name email role'
-    );
+    const seller = await Seller.findOne({ userId: user._id }).populate('userId','name email role');
     if (seller) return res.status(200).json(seller);
 
     res.status(200).json(user);
@@ -30,19 +25,15 @@ const userInfo = async (
   }
 };
 
-const updateUserInfo = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+
+
+const updateUserInfo = async ( req: Request, res: Response): Promise<Response | void> => {
+
   try {
     const user = res.locals.user;
     let { name, email } = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { name, email },
-      { new: true, runValidators: true }
-    ).select('-password');
+    const updatedUser = await User.findByIdAndUpdate(user._id,{ name, email },{ new: true, runValidators: true }).select('-password');
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -55,8 +46,10 @@ const updateUserInfo = async (
   }
 };
 
+
 const addAddress = async (req: Request, res: Response) => {
-  const userId = res.locals.user._id;
+
+  const userId = new Types.ObjectId(res.locals.user._id);
   const addressData = req.body;
 
   const user = await User.findById(userId);
@@ -79,9 +72,11 @@ const addAddress = async (req: Request, res: Response) => {
   });
 };
 
-const getAddresses = async (req: Request, res: Response) => {
-  const userId = new Types.ObjectId(res.locals.user._id);
 
+
+const getAddresses = async (req: Request, res: Response) => {
+
+  const userId = new Types.ObjectId(res.locals.user._id);
   const user = await User.findById(userId).select('addresses');
 
   if (!user) {
@@ -93,6 +88,8 @@ const getAddresses = async (req: Request, res: Response) => {
     data: user.addresses,
   });
 };
+
+
 
 const fetchMyOrders = async (req: Request, res: Response) => {
   try {
@@ -114,5 +111,7 @@ const fetchMyOrders = async (req: Request, res: Response) => {
     });
   }
 };
+
+
 
 export { userInfo, updateUserInfo, addAddress, getAddresses, fetchMyOrders };

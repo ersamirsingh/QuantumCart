@@ -3,7 +3,11 @@ import { Product } from '../models/Product';
 import { Review } from '../models/Review';
 import { Types } from 'mongoose';
 
+
+
+
 export const reviewProduct = async (req: Request, res: Response) => {
+
   try {
     const productId = new Types.ObjectId(req.params.productId);
     if (!Types.ObjectId.isValid(productId))
@@ -27,13 +31,13 @@ export const reviewProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateReview = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+
+
+export const updateReview = async (req: Request, res: Response): Promise<Response | void> => {
+
   try {
     const productId = new Types.ObjectId(req.params.productId);
-    if (!productId)
+    if (!Types.ObjectId.isValid(productId))
       return res.status(400).json({ message: 'Missing required fields' });
 
     const product = await Product.findById(productId);
@@ -52,6 +56,8 @@ export const updateReview = async (
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
 
 export const removeReview = async (req: Request, res: Response) => {
   try {

@@ -217,11 +217,12 @@ export const removeItemCompletely = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
     const productId = new Types.ObjectId(req.params.productId);
-    if (!productId)
+    if (!Types.ObjectId.isValid(req.params.productId)) {
       return res.status(400).json({
         success: false,
-        message: 'ProductId is required',
-      });
+        message: 'Invalid productId',
+      })
+    }
 
     const updatedCart = await Cart.findOneAndUpdate(
       { userId },
