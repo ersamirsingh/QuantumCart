@@ -1,17 +1,19 @@
 import { Router } from 'express';
-import { Register, Login, Logout, deleteUser, verifyUser} from '../controllers/AuthController';
-import authenticateUser from '../middleware/authenticateUser';
-
-
+import {
+  Register,
+  Login,
+  Logout,
+  deleteUser,
+  verifyUser,
+} from '../Controllers/AuthController';
+import authenticateUser from '../Middleware/authenticateUser';
 
 const authRouter: Router = Router();
 
 authRouter.get('/verify', authenticateUser, verifyUser);
-authRouter.post('/register', Register)
-authRouter.post('/login', Login)
-authRouter.get('/logout', authenticateUser, Logout)
-authRouter.delete('/delete', authenticateUser, deleteUser)
+authRouter.post('/register', Register);
+authRouter.post('/login', Login);
+authRouter.get('/logout', authenticateUser, Logout);
+authRouter.delete('/delete', authenticateUser, deleteUser);
 
-
-
-export default authRouter
+export default authRouter;

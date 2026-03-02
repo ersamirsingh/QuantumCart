@@ -1,20 +1,23 @@
-import { Router } from "express";
-import authenticateUser from "../middleware/authenticateUser";
-import { sellerRegister, removeSeller} from "../controllers/SellerController";
-import authenticateSeller from "../middleware/authenticateSeller";
-import { addProduct, getProductById, getSellerProduct, removeProduct, updateProduct } from "../controllers/ProductController";
+import { Router } from 'express';
+import authenticateUser from '../Middleware/authenticateUser';
+import { sellerRegister, removeSeller } from '../Controllers/SellerController';
+import authenticateSeller from '../Middleware/authenticateSeller';
+import {
+  addProduct,
+  getProductById,
+  getSellerProduct,
+  removeProduct,
+  updateProduct,
+} from '../Controllers/ProductController';
 
 const sellerRouter: Router = Router();
 
-
 sellerRouter.post('/register', authenticateUser, sellerRegister);
 sellerRouter.post('/remove', authenticateUser, removeSeller);
-sellerRouter.post('/product/add', authenticateSeller, addProduct)
+sellerRouter.post('/product/add', authenticateSeller, addProduct);
 sellerRouter.get('/products', authenticateSeller, getSellerProduct);
-sellerRouter.get('/product/:productId', authenticateSeller, getProductById)
-sellerRouter.delete('/product/:productId', authenticateSeller, removeProduct)
+sellerRouter.get('/product/:productId', authenticateSeller, getProductById);
+sellerRouter.delete('/product/:productId', authenticateSeller, removeProduct);
 sellerRouter.patch('/product/:productId', authenticateSeller, updateProduct);
 
-
-
-export default sellerRouter
+export default sellerRouter;

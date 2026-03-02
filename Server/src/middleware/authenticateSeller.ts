@@ -1,48 +1,50 @@
-import { Request, Response, NextFunction } from "express";
-import { redisClient } from "../config/Redis";
-import jwt  from 'jsonwebtoken';
-import { IPayload } from "./authenticateUser";
-import { User, UserRole } from "../models/User";
-import { Seller } from "../models/Seller";
+import { Request, Response, NextFunction } from 'express';
+import { redisClient } from '../Config/Redis';
+import jwt from 'jsonwebtoken';
+import { IPayload } from './authenticateUser';
+import { User, UserRole } from '../Models/User';
+import { Seller } from '../Models/Seller';
 
+const authenticateSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
+  try {
+    const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
+    if (!Token) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-const authenticateSeller = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-   
+    const isBlocked = await redisClient.exists(`Token:${Token}`);
+    if (isBlocked) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-   try {
-      const Token = req.cookies.Token || req.headers.authorization?.split(" ")[1];
-      if(!Token){
-         return res.status(401).json({message: "Unauthorized"});
-      }
+    const payload = jwt.verify(
+      Token,
+      process.env.JWT_SECRET as string
+    ) as IPayload;
+    if (typeof payload !== 'object' || !payload) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-      const isBlocked = await redisClient.exists(`Token:${Token}`);
-      if(isBlocked){
-         return res.status(401).json({message: "Unauthorized"});
-      }
-      
-      const payload = jwt.verify(Token, process.env.JWT_SECRET as string) as IPayload;
-      if(typeof payload !== "object" || !payload){
-         return res.status(401).json({message: "Unauthorized"});
-      }
-      
-      const user = await User.findById(payload.id).select('-password');
-      if(!user){
-         return res.status(401).json({message: "Unauthorized"});
-      }
-      if(user.role !== UserRole.SELLER)
-         return res.status(401).json({message: "Unauthorized"});
+    const user = await User.findById(payload.id).select('-password');
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    if (user.role !== UserRole.SELLER)
+      return res.status(401).json({ message: 'Unauthorized' });
 
-      const seller = await Seller.findOne({userId: user._id}).select('-password');
-      if(!seller){
-         return res.status(401).json({message: "Unauthorized"});
-      }
-      res.locals.user = seller;
-      next();
+    const seller = await Seller.findOne({ userId: user._id }).select(
+      '-password'
+    );
+    if (!seller) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    res.locals.user = seller;
+    next();
+  } catch (error) {}
+};
 
-   } catch (error) {
-      
-   }
-}
-
-
-export default authenticateSeller
+export default authenticateSeller;
