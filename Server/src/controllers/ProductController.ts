@@ -197,7 +197,8 @@ export const getProductById = async (req: Request, res: Response) => {
 export const getAllProducts = async (req: Request, res: Response) =>{
 
    try {
-      const products = await Product.find({});
+      const limit = 20;
+      const products = await Product.find({}).limit(limit).lean();;
       return res.status(200).json(products);
    } catch (error) {
       res.status(500).json({message: "Internal server error"})
