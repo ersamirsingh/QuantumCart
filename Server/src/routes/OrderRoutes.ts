@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import authenticateUser from '../Middleware/AuthenticateUser';
+import authenticateUser from '../middleware/AuthenticateUser';
 import {
   cancelOrder,
   confirmOrder,
   makeOrder,
 } from '../controllers/OrderController';
-import authenticateSeller from '../Middleware/AuthenticateSeller';
+import authenticateSeller from '../middleware/AuthenticateSeller';
 import { shipOrder } from '../controllers/ShipController';
 
 const orderRouter: Router = Router();

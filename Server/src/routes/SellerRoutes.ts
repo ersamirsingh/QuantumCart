@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import authenticateUser from '../Middleware/AuthenticateUser';
+import authenticateUser from '../middleware/AuthenticateUser';
 import { sellerRegister, removeSeller } from '../controllers/SellerController';
-import authenticateSeller from '../Middleware/AuthenticateSeller';
+import authenticateSeller from '../middleware/AuthenticateSeller';
 import {
   addProduct,
   getProductById,

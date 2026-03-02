@@ -1,6 +1,6 @@
 import { User } from '../models/User';
 import { Request, Response } from 'express';
-import ValidateInfo from '../utils/ValidateInfo';
+import ValidateInfo from '../util/ValidateInfo';
 import bcrypt from 'bcrypt';
 import { Seller } from '../models/Seller';
 import { Types } from 'mongoose';

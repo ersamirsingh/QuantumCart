@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
-import ValidateInfo from '../utils/ValidateInfo';
+import ValidateInfo from '../util/ValidateInfo';
 import bcrypt from 'bcrypt';
 import { UserRole } from '../models/User';
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
