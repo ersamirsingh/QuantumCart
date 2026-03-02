@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import { Order, OrderStatus, PaymentStatus } from '../Models/Order';
 import { User } from '../Models/User';
+import { Types } from 'mongoose';
+
 
 export const makeOrder = async (req: Request, res: Response) => {
   try {
-    const userId = res.locals.user?._id;
+    const userId = new Types.ObjectId(res.locals.user?._id);
     const { items, addressId } = req.body;
     const shippingAddress = await User.findOne(
       { _id: userId, 'addresses._id': addressId },
@@ -48,7 +50,7 @@ export const makeOrder = async (req: Request, res: Response) => {
 
 export const confirmOrder = async (req: Request, res: Response) => {
   try {
-    const orderId = req.params.orderId;
+    const orderId = new Types.ObjectId(req.params.orderId);
     if (!orderId) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
@@ -69,8 +71,8 @@ export const confirmOrder = async (req: Request, res: Response) => {
 
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
-    const userId = res.locals.user?._id;
-    const { orderId } = req.params;
+    const userId = new Types.ObjectId(res.locals.user?._id);
+    const orderId = new Types.ObjectId(req.params.orderId);
     if (!orderId)
       return res.status(400).json({ message: 'Missing required fields' });
 

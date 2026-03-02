@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { redisClient } from '../Config/Redis';
 import jwt from 'jsonwebtoken';
-import { IPayload } from './authenticateUser';
+import { IPayload } from './AuthenticateUser';
 import { User, UserRole } from '../Models/User';
 import { Seller } from '../Models/Seller';
 

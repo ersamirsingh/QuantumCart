@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Order, OrderStatus } from '../Models/Order';
 import { Shipment } from '../Models/Shipment';
 import { randomBytes } from 'crypto';
+import { Types } from 'mongoose';
 
 //Generate track id
 //Check delivery status
@@ -23,7 +24,8 @@ function generateTrackingNumber(courierName: string): string {
 
 export const shipOrder = async (req: Request, res: Response) => {
   try {
-    const { orderId, orderWeight } = req.body || {};
+    const orderId = new Types.ObjectId(req.body.orderId);
+    const { orderWeight } = req.body || {};
     if (!orderId || !orderWeight) {
       return res.status(400).json({ message: 'Missing required fields' });
     }

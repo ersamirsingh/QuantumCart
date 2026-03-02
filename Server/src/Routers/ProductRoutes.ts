@@ -4,7 +4,7 @@ import {
   getProductById,
   getAllProducts,
 } from '../Controllers/ProductController';
-import authenticateUser from '../Middleware/authenticateUser';
+import authenticateUser from '../Middleware/AuthenticateUser';
 
 const productRouter: Router = Router();
 

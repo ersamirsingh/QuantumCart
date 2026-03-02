@@ -6,7 +6,7 @@ import {
   removeFromCart,
   removeItemCompletely,
 } from '../Controllers/CartController';
-import authenticateUser from '../Middleware/authenticateUser';
+import authenticateUser from '../Middleware/AuthenticateUser';
 const cartRouter = Router();
 
 cartRouter.get('/', authenticateUser, getCart);

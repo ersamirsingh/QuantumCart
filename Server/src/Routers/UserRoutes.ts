@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import authenticateUser from '../Middleware/authenticateUser';
+import authenticateUser from '../Middleware/AuthenticateUser';
 import {
   userInfo,
   updateUserInfo,

@@ -5,6 +5,7 @@ import { Product } from '../Models/Product';
 import mongoose from 'mongoose';
 
 export const sellerRegister = async (req: Request, res: Response) => {
+  
   try {
     const { storeName, storeDescription } = req.body || {};
     if (!storeName || !storeDescription) {

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { redisClient } from '../Config/Redis';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { User } from '../Models/User';
-import { IPayload } from './authenticateUser';
+import { IPayload } from './AuthenticateUser';
 import { UserRole } from '../Models/User';
 
 const authenticateAdmin = async (

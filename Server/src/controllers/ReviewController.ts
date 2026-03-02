@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { Product } from '../Models/Product';
 import { Review } from '../Models/Review';
+import { Types } from 'mongoose';
 
 export const reviewProduct = async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params;
-    if (!productId)
+    const productId = new Types.ObjectId(req.params.productId);
+    if (!Types.ObjectId.isValid(productId))
       return res.status(400).json({ message: 'Missing required fields' });
 
     const product = await Product.findById(productId);
@@ -26,12 +27,10 @@ export const reviewProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateReview = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const updateReview = async ( req: Request, res: Response): Promise<Response | void> => {
+
   try {
-    const { productId } = req.params;
+    const productId = new Types.ObjectId(req.params.productId);
     if (!productId)
       return res.status(400).json({ message: 'Missing required fields' });
 
@@ -54,8 +53,8 @@ export const updateReview = async (
 
 export const removeReview = async (req: Request, res: Response) => {
   try {
-    const { productId } = req.params;
-    if (!productId)
+    const productId = new Types.ObjectId(req.params.productId);
+    if (!Types.ObjectId.isValid(productId))
       return res.status(400).json({ message: 'Missing required fields' });
 
     const product = await Product.findById(productId);

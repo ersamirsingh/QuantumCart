@@ -6,10 +6,8 @@ import { Seller } from '../Models/Seller';
 import { Types } from 'mongoose';
 import { Order } from '../Models/Order';
 
-const userInfo = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+const userInfo = async (req: Request, res: Response ): Promise<Response | void> => {
+
   try {
     const user = res.locals.user;
     if (!user) {
@@ -30,10 +28,7 @@ const userInfo = async (
   }
 };
 
-const updateUserInfo = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+const updateUserInfo = async (req: Request, res: Response): Promise<Response | void> => {
   try {
     const user = res.locals.user;
     let { name, email } = req.body;
@@ -80,7 +75,7 @@ const addAddress = async (req: Request, res: Response) => {
 };
 
 const getAddresses = async (req: Request, res: Response) => {
-  const userId = res.locals.user._id;
+  const userId = new Types.ObjectId(res.locals.user._id);
 
   const user = await User.findById(userId).select('addresses');
 
