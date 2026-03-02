@@ -144,7 +144,7 @@ export default function ProductAddPage() {
       };
       setLoading(true);
       try {
-         const res = await axiosClient.post('/product/add', payload);
+         const res = await axiosClient.post('/seller/product/add', payload);
          setProduct(res.data);
          setSuccess(true);
          setTimeout(() => {

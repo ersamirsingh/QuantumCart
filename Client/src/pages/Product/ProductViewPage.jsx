@@ -84,7 +84,7 @@ export default function ProductViewPage() {
       const load = async () => {
          setLoading(true)
          try {
-            const res = await axiosClient.get(`/product/${id}`);
+            const res = await axiosClient.get(`/seller/product/${id}`);
             setProduct(res.data);
             setImgIndex(0);
             setError(null);

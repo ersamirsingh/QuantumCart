@@ -107,9 +107,10 @@ export default function ProductUpdatePage() {
       const load = async () => {
          setFetchLoading(true);
          try {
-            const res = await axiosClient.get(`/product/${id}`);
+            const res = await axiosClient.get(`/seller/product/${id}`);
             const data = res.data;
-            setOriginal(data);
+            console.log(data)
+            setOriginal(res.data);
             setForm({
                name: data.name,
                description: data.description || "",
@@ -176,7 +177,7 @@ export default function ProductUpdatePage() {
       };
 
       try {
-         const res = await axiosClient.patch(`/product/${original._id}`, payload);
+         const res = await axiosClient.patch(`/seller/product/${original._id}`, payload);
          setOriginal((prev) => ({ ...prev, ...payload }));
          setSuccess(true);
          setTimeout(() => {

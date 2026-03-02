@@ -8,6 +8,8 @@ import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
 import LoadingPage from "../components/LoadingPage";
+import { getProducts } from "../store/slices/productSlice";
+
 
 const NAV_LINKS = [
   { label: "Home", path: "/" },
@@ -149,10 +151,9 @@ function ProductCard({ product }) {
 export default function LandingPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  // Redux state
   const { user, loading } = useSelector((state) => state.auth);
-  
+  const {products} = useSelector(state=>state.products)
+  console.log(products)
   const [heroIndex, setHeroIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   // const [searchOpen, setSearchOpen] = useState(false);
@@ -172,6 +173,10 @@ export default function LandingPage() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  useEffect(()=>{
+    dispatch(getProducts());
+  }, [dispatch]);
 
   const slide = HERO_SLIDES[heroIndex];
 

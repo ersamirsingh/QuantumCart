@@ -63,7 +63,7 @@ export default function ProductDeletePage() {
     setDeleteError("");
 
     try {
-      await axiosClient.delete(`/product/${product._id}`);
+      await axiosClient.delete(`/seller/product/${product._id}`);
       setDeleted(true);
       setSuccess(true)
       setTimeout(() => navigate("/seller/products"), 1000);
