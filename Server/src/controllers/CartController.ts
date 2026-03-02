@@ -7,31 +7,23 @@ import mongoose from 'mongoose';
 export const addToCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
-    const { productId, quantity = 1 } = req.body;
-
+    const productId = new Types.ObjectId(req.body.productId as string);
     if (!Types.ObjectId.isValid(productId)) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Invalid productId' });
+      return res.status(400).json({ success: false, message: 'Invalid productId' });
     }
 
+    const { quantity = 1 } = req.body || {};
     if (quantity <= 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Quantity must be greater than 0' });
+      return res.status(400).json({ success: false, message: 'Quantity must be greater than 0' });
     }
 
     const product = await Product.findById(productId).select('stock');
     if (!product) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'Product not found' });
+      return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
     if (product.stock < quantity) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Insufficient stock' });
+      return res.status(400).json({ success: false, message: 'Insufficient stock' });
     }
 
     await Cart.updateOne(
@@ -52,33 +44,27 @@ export const addToCart = async (req: Request, res: Response) => {
       );
     }
 
-    const cart = await Cart.findOne({ userId })
-      .populate('items.productId', 'name price images')
-      .lean();
+    const cart = await Cart.findOne({ userId }).populate('items.productId', 'name price images').lean();
 
     return res.status(200).json({
       success: true,
       data: cart,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: 'Internal server error' });
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
-export const removeFromCart = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+
+
+export const removeFromCart = async (req: Request, res: Response) => {
+
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
 
     const userId = res.locals.user?._id;
     const productId = new Types.ObjectId(req.params.productId as string);
-
     if (!Types.ObjectId.isValid(productId)) {
       await session.abortTransaction();
       session.endSession();
@@ -157,7 +143,6 @@ export const removeFromCart = async (
 export const clearCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
-
     const updatedCart = await Cart.findOneAndUpdate(
       { userId },
       { $set: { items: [] } },
@@ -175,10 +160,7 @@ export const clearCart = async (req: Request, res: Response) => {
       data: updatedCart,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: 'Internal server error' });
-    error;
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
@@ -186,9 +168,7 @@ export const getCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
 
-    const cart = await Cart.findOne({ userId })
-      .populate('items.productId', 'name price images')
-      .lean();
+    const cart = await Cart.findOne({ userId }).populate('items.productId', 'name price images').lean();
 
     if (!cart) {
       return res.status(200).json({
@@ -206,18 +186,18 @@ export const getCart = async (req: Request, res: Response) => {
       data: { ...cart, totalPrice },
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, message: 'Internal server error' });
-    error;
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
+
+
 export const removeItemCompletely = async (req: Request, res: Response) => {
+
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
     const productId = new Types.ObjectId(req.params.productId as string);
-    if (!Types.ObjectId.isValid(req.params.productId)) {
+    if (!Types.ObjectId.isValid(productId)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid productId',
