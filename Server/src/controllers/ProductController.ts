@@ -1,210 +1,191 @@
-import { Request, Response } from "express";
-import mongoose from 'mongoose';
-import { Seller } from "../models/Seller";
-import { Product } from "../models/Product";
+import { Request, Response } from 'express';
+import { Types } from 'mongoose';
+import { Seller } from '../models/Seller';
+import { Product } from '../models/Product';
 
+export const addProduct = async ( req: Request, res: Response ): Promise<Response | void> => {
 
-export const addProduct = async (req: Request, res: Response): Promise<Response | void> => {
-   try {
+  try {
 
-      let { name, description, price, discount, stock, images } = req.body || {};
+    let { name, description, price, discount, stock, images } = req.body || {};
 
-      if (!name || !description || price == null || stock == null) {
-         return res.status(400).json({ message: "Missing required fields" });
-      }
+    if (!name || !description || price == null || stock == null) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
-      const seller = await Seller.findById(res.locals.user._id);
-      if (!seller) {
-         return res.status(404).json({ message: "Seller not found" });
-      }
+    const seller = await Seller.findById(res.locals.user._id);
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
 
-      let finalPrice: number;
-      if (discount != null) {
-         finalPrice = price - price * (discount / 100);
-      } else {
-         finalPrice = price;
-      }
+    let finalPrice: number;
+    if (discount != null) {
+      finalPrice = price - price * (discount / 100);
+    } else {
+      finalPrice = price;
+    }
 
-      let photos: string[] = [];
-      if (images != null || images.length > 0 || images != undefined) {
-         images.forEach((image: string) => {
-            photos.push(image);
-         })
-      }
-
-      const product = await Product.create({
-         name,
-         description,
-         price,
-         discount,
-         finalPrice,
-         stock,
-         images: photos,
-         sellerId: seller._id
+    let photos: string[] = [];
+    if (images != null || images.length > 0 || images != undefined) {
+      images.forEach((image: string) => {
+        photos.push(image);
       });
+    }
 
-      seller.products.push(product._id);
-      await seller.save();
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      discount,
+      finalPrice,
+      stock,
+      images: photos,
+      sellerId: seller._id,
+    });
 
-      return res.status(201).json(product);
+    seller.products.push(product._id);
+    await seller.save();
 
-   } catch (error) {
-      return res.status(500).json({
-         message:
-            error instanceof Error ? error.message : "Internal server error"
-      });
-   }
+    return res.status(201).json(product);
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
 };
-
 
 
 export const removeProduct = async (req: Request, res: Response) => {
-   try {
-      const { productId } = req.params;
-      const sellerId = res.locals.user._id;
 
-      if (!mongoose.Types.ObjectId.isValid(productId)) {
-         return res.status(400).json({ message: "Invalid product ID" });
-      }
+  try {
+    const productId = new Types.ObjectId(req.params.productId as string);
+    const sellerId = new Types.ObjectId(res.locals.user._id);
 
-      // Verify product belongs to seller
-      const product = await Product.findOne({
-         _id: productId,
-         sellerId: sellerId
+    if (!Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    // Verify product belongs to seller
+    const product = await Product.findOne({
+      _id: productId,
+      sellerId: sellerId,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        message: 'Product not found or unauthorized',
       });
+    }
 
-      if (!product) {
-         return res.status(404).json({
-            message: "Product not found or unauthorized"
-         });
-      }
+    // Delete product
+    await Product.deleteOne({ _id: productId });
 
-      // Delete product
-      await Product.deleteOne({ _id: productId });
+    // Remove product reference from seller atomically
+    await Seller.updateOne(
+      { _id: sellerId },
+      { $pull: { products: productId } }
+    );
 
-      // Remove product reference from seller atomically
-      await Seller.updateOne(
-         { _id: sellerId },
-         { $pull: { products: productId } }
-      );
-
-      return res.status(200).json({
-         message: "Product deleted successfully"
-      });
-
-   } catch (error) {
-      return res.status(500).json({
-         message:
-            error instanceof Error ? error.message : "Internal server error"
-      });
-   }
+    return res.status(200).json({
+      message: 'Product deleted successfully',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
 };
-
-
 
 export const updateProduct = async (req: Request, res: Response) => {
-   try {
-      const { productId } = req.params;
-      if (!productId)
-         return res.status(400).json({ message: "Missing productId" });
 
-      const updateData: any = {};
-      const {
-         name,
-         description,
-         price,
-         discount,
-         stock,
-         images,
-      } = req.body;
+  try {
 
-      if (name) updateData.name = name;
-      if (description) updateData.description = description;
-      if (price != null) updateData.price = price;
-      if (discount != null) updateData.discount = discount;
-      if (stock != null) updateData.stock = stock;
-      if (stock===0) updateData.status = "OUT_OF_STOCK";
+    const productId = new Types.ObjectId(req.params.productId as string);
+    if (!Types.ObjectId.isValid(productId))
+      return res.status(400).json({ message: 'Missing productId' });
 
-      if (Array.isArray(images)) {
-         updateData.images = images; // replace mode
-      }
+    const updateData: any = {};
+    const { name, description, price, discount, stock, images } = req.body;
 
-      // Handle final price calculation
-      if (price != null || discount != null) {
-         const product = await Product.findById(productId).select("price discount");
-         if (!product)
-            return res.status(404).json({ message: "Product not found" });
+    if (name) updateData.name = name;
+    if (description) updateData.description = description;
+    if (price != null) updateData.price = price;
+    if (discount != null) updateData.discount = discount;
+    if (stock != null) updateData.stock = stock;
+    if (stock === 0) updateData.status = 'OUT_OF_STOCK';
 
-         const currentPrice = price ?? product.price;
-         const currentDiscount = discount ?? product.discount ?? 0;
+    if (Array.isArray(images)) {
+      updateData.images = images; // replace mode
+    }
 
-         updateData.finalPrice =
-            currentPrice - currentPrice * (currentDiscount / 100);
-      }
+    // Handle final price calculation
+    if (price != null || discount != null) {
+      const product =
+        await Product.findById(productId).select('price discount');
+      if (!product)
+        return res.status(404).json({ message: 'Product not found' });
 
-      const updatedProduct = await Product.findByIdAndUpdate(
-         productId,
-         { $set: updateData },
-         { new: true, runValidators: true }
-      );
+      const currentPrice = price ?? product.price;
+      const currentDiscount = discount ?? product.discount ?? 0;
 
-      if (!updatedProduct)
-         return res.status(404).json({ message: "Product not found" });
+      updateData.finalPrice =
+        currentPrice - currentPrice * (currentDiscount / 100);
+    }
 
-      return res.status(200).json(updatedProduct);
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
 
-   } catch (error) {
-      return res.status(500).json({
-         message: error instanceof Error ? error.message : "Internal server error"
-      });
-   }
+    if (!updatedProduct)
+      return res.status(404).json({ message: 'Product not found' });
+
+    return res.status(200).json(updatedProduct);
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
 };
-
 
 
 export const getSellerProduct = async (req: Request, res: Response) => {
-
-   try {
-      const products = await Product.find({ sellerId: res.locals.user?._id })
-      return res.status(200).json(products);
-   } catch (error) {
-      return res.status(500).json({
-         message: error instanceof Error ? error.message : "Internal server error"
-      });
-   }
-}
+  try {
+    const products = await Product.find({ sellerId: res.locals.user?._id });
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
+};
 
 
 
 export const getProductById = async (req: Request, res: Response) => {
 
-   try {
-      const productId = req.params.productId;
-      const product = await Product.findById(productId);
-      if (!product)
-         return res.status(404).json({ message: "Product not found" });
+  try {
+    const productId = new Types.ObjectId(req.params.productId as string);
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
 
-      return res.status(200).json(product);
-   } catch (error) {
-      return res.status(500).json({
-         message: error instanceof Error ? error.message : "Internal server error"
-      });
-   }
-}
-
-
-
-export const getAllProducts = async (req: Request, res: Response) =>{
-
-   try {
-      
-      const products = await Product.find();
-      return res.status(200).json(products);
-   } catch (error) {
-      res.status(500).json({message: "Internal server error"})
-   }
-}
+    return res.status(200).json(product);
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
+};
 
 
 
-
+export const getAllProducts = async (req: Request, res: Response) => {
+  try {
+    const limit = 20;
+    const products = await Product.find({}).limit(limit).lean();
+    return res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

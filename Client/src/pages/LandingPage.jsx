@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Zap, Search, ShoppingCart, Heart, Star, ArrowRight,
   ChevronLeft, ChevronRight, TruckIcon, Shield, RotateCcw,
-  Headphones, Bell, User, Menu, X, Sparkles, TrendingUp, LogIn
+  Headphones, Bell, User, Menu, X, Sparkles, TrendingUp, LogIn, Package, Package2
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
-import LoadingPage from "../components/LoadingPage";
+import { fetchCart } from "../store/slices/cartSlice";
+import { getProducts } from "../store/slices/productSlice";
 
 const NAV_LINKS = [
   { label: "Home", path: "/" },
@@ -109,37 +110,85 @@ function Stars({ rating }) {
 }
 
 function ProductCard({ product }) {
+  const navigate = useNavigate();
   const [wished, setWished] = useState(false);
-  const disc = Math.round((1 - product.price / product.original) * 100);
+  const [imgBroken, setImgBroken] = useState(!product.images?.[0]);
+  
+  // Calculate discount percentage if not provided
+  const disc = product.discount || Math.round((1 - product.finalPrice / product.price) * 100);
+  
+  const isValidUrl = (str) => {
+    if (!str) return false;
+    try { return Boolean(new URL(str)); } catch { return false; }
+  };
+
   return (
-    <div className="qch-pcard">
+    <div className="qch-pcard" onClick={() => navigate(`/product/${product._id}`)}>
       <div className="qch-pcard-img-wrap">
-        <img src={product.img} alt={product.name} className="qch-pcard-img" />
+        {!imgBroken && product.images?.[0] && isValidUrl(product.images[0]) ? (
+          <img 
+            src={product.images[0]} 
+            alt={product.name} 
+            className="qch-pcard-img"
+            onError={() => setImgBroken(true)}
+          />
+        ) : (
+          <div style={{
+            width: '100%', 
+            height: '100%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            background: 'rgba(255,255,255,0.03)'
+          }}>
+            <Package size={32} color="rgba(255,255,255,0.15)" />
+          </div>
+        )}
         <div className="qch-pcard-overlay">
-          <button className="qch-pcard-cart">
+          <button className="qch-pcard-cart" onClick={(e) => e.stopPropagation()}>
             <ShoppingCart size={16} /> Add to Cart
           </button>
         </div>
-        <button className="qch-wish" onClick={() => setWished(!wished)} aria-label="Wishlist">
+        <button className="qch-wish" onClick={(e) => { e.stopPropagation(); setWished(!wished); }} aria-label="Wishlist">
           <Heart size={15} fill={wished ? "#ec4899" : "none"} color={wished ? "#ec4899" : "rgba(255,255,255,0.5)"} />
         </button>
-        <span
-          className="qch-ptag"
-          style={{ background: product.tagColor + "22", color: product.tagColor, border: `1px solid ${product.tagColor}44` }}
-        >
-          {product.tag}
-        </span>
-        <span className="qch-disc">-{disc}%</span>
+        {disc > 0 && (
+          <span className="qch-disc">-{disc}%</span>
+        )}
+        {product.status === "OUT_OF_STOCK" && (
+          <span className="qch-ptag" style={{ 
+            background: "rgba(248,113,113,0.9)", 
+            color: "#fff", 
+            border: "1px solid rgba(248,113,113,0.3)"
+          }}>
+            Out of Stock
+          </span>
+        )}
+        {product.status === "ACTIVE" && product.stock <= 10 && (
+          <span className="qch-ptag" style={{ 
+            background: "rgba(245,158,11,0.9)", 
+            color: "#fff", 
+            border: "1px solid rgba(245,158,11,0.3)"
+          }}>
+            Only {product.stock} left
+          </span>
+        )}
       </div>
       <div className="qch-pcard-body">
         <h4 className="qch-pname">{product.name}</h4>
         <div className="qch-prating">
-          <Stars rating={product.rating} />
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginLeft: 4 }}>({product.reviews.toLocaleString()})</span>
+          <Stars rating={product.rating || 0} />
+          {product.rating > 0 && (
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginLeft: 4 }}>
+              ({product.rating})
+            </span>
+          )}
         </div>
         <div className="qch-pprice">
-          <span className="qch-price-now">₹{product.price.toLocaleString()}</span>
-          <span className="qch-price-was">₹{product.original.toLocaleString()}</span>
+          <span className="qch-price-now">₹{product.finalPrice.toLocaleString()}</span>
+          {product.discount > 0 && (
+            <span className="qch-price-was">₹{product.price.toLocaleString()}</span>
+          )}
         </div>
       </div>
     </div>
@@ -151,16 +200,28 @@ export default function LandingPage() {
   const dispatch = useDispatch();
   
   // Redux state
-  const { user, loading } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
+  const { cart } = useSelector((state) => state.cart);
+  const { products, loading: productsLoading } = useSelector((state) => state.products);
   
   const [heroIndex, setHeroIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  // const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
   const timerRef = useRef(null);
 
+  // Fetch cart and products on mount if user is logged in
+  useEffect(() => {
+    dispatch(getProducts());
+    if (user) {
+      dispatch(fetchCart());
+    }
+  }, [user, dispatch]);
+
+  // Calculate cart count from Redux
+  const cartCount = cart?.items?.filter(item => item.product)?.length || 0;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -197,8 +258,6 @@ export default function LandingPage() {
       .join("")
       .toUpperCase();
   };
-
-  if(loading) return <LoadingPage/>
 
   return (
     <>
@@ -878,7 +937,10 @@ export default function LandingPage() {
                   onClick={() => navigate("/cart")}
                 >
                   <ShoppingCart size={18} />
-                </button> 
+                  {cartCount > 0 && (
+                    <span className="qch-cart-badge">{cartCount}</span>
+                  )}
+                </button>
               </>
             )}
 
@@ -920,10 +982,10 @@ export default function LandingPage() {
                         <span className="qch-dropdown-icon">📦</span> My Orders
                       </button>
                       <button className="qch-dropdown-item" role="menuitem" onClick={() => {
-                        navigate("/wishlist");
+                        navigate("/cart");
                         setProfileOpen(false);
                       }}>
-                        <span className="qch-dropdown-icon">❤️</span> Wishlist
+                        <span className="qch-dropdown-icon"><Package2></Package2></span> Cart
                       </button>
                       <button className="qch-dropdown-item" role="menuitem" onClick={() => {
                         navigate("/settings");
@@ -1104,7 +1166,18 @@ export default function LandingPage() {
           </div>
           <div style={{ height: 28 }} />
           <div className="qch-products-grid">
-            {FEATURED_PRODUCTS.map((p) => <ProductCard key={p.id} product={p} />)}
+            {productsLoading ? (
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.4)' }}>
+                Loading products...
+              </div>
+            ) : products.length === 0 ? (
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px' }}>
+                <Package size={48} color="rgba(255,255,255,0.15)" />
+                <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: 16 }}>No products available</p>
+              </div>
+            ) : (
+              products.slice(0, 6).map((p) => <ProductCard key={p._id} product={p} />)
+            )}
           </div>
         </div>
 

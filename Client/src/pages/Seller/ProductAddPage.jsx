@@ -144,11 +144,11 @@ export default function ProductAddPage() {
       };
       setLoading(true);
       try {
-         const res = await axiosClient.post('/product/add', payload);
+         const res = await axiosClient.post('/seller/product/add', payload);
          setProduct(res.data);
          setSuccess(true);
          setTimeout(() => {
-            navigate(`/product/${res.data._id}`)
+            navigate(`/seller/product/${res.data._id}`)
          }, 100);
       } catch (e) {
          setApiError(e.message);

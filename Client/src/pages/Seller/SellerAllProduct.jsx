@@ -362,7 +362,7 @@ export default function SellerAllProduct() {
                <span className="ap-nav-sep">/</span>
                <span className="ap-nav-page">All Products</span>
                <div className="ap-nav-spacer" />
-               <button className="ap-btn-add" onClick={() => navigate("/product/add")}>
+               <button className="ap-btn-add" onClick={() => navigate("/seller/product/add")}>
                   + Add Product
                </button>
             </nav>
@@ -471,9 +471,9 @@ export default function SellerAllProduct() {
                               key={product._id}
                               product={product}
                               index={index}
-                              onView={(id) => navigate(`/product/${id}`)}
-                              onEdit={(id) => navigate(`/product/edit/${id}`)}
-                              onDelete={(id) => navigate(`/product/delete/${id}`)}
+                              onView={(id) => navigate(`/seller/product/${id}`)}
+                              onEdit={(id) => navigate(`/seller/product/edit/${id}`)}
+                              onDelete={(id) => navigate(`/seller/product/delete/${id}`)}
                            />
                         ))
                      ) : (
