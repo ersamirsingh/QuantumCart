@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { User } from '../models/User';
 import ValidateInfo from '../util/ValidateInfo';
 import bcrypt from 'bcrypt';
@@ -8,7 +9,9 @@ import { redisClient } from '../config/Redis';
 import { Seller } from '../models/Seller';
 import { IUser } from '../models/User';
 
-const Register = async (req: Request, res: Response): Promise<Response> => {
+
+
+export const Register = async (req: Request, res: Response): Promise<Response> => {
   try {
     const { name, email, password, role } = req.body || {};
 
@@ -24,7 +27,7 @@ const Register = async (req: Request, res: Response): Promise<Response> => {
       return res.status(400).json({ message });
     }
 
-    const existedUser = await User.findOne({ email:email.toLowerCase().trim() });
+    const existedUser = await User.findOne({ email:email.toLowerCase().trim(), isDeleted:false});
     if (existedUser) {
       return res.status(400).json({
         message: 'User already exists',
@@ -35,7 +38,7 @@ const Register = async (req: Request, res: Response): Promise<Response> => {
 
     const user = await User.create({
       name,
-      email: email.toLowerCase(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
       role: role ? role : UserRole.CUSTOMER,
     });
@@ -78,7 +81,9 @@ const Register = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
-const Login = async (req: Request, res: Response) => {
+
+
+export const Login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body || {};
 
@@ -88,7 +93,7 @@ const Login = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const user = await User.findOne({ email: email.toLowerCase().trim(), isDeleted:false });
     if (!user) {
       return res.status(404).json({
         message: 'Invalid credentials',
@@ -138,7 +143,9 @@ const Login = async (req: Request, res: Response) => {
   }
 };
 
-const Logout = async (req: Request, res: Response) => {
+
+
+export const Logout = async (req: Request, res: Response) => {
   try {
     const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
 
@@ -172,30 +179,58 @@ const Logout = async (req: Request, res: Response) => {
   }
 };
 
-const deleteUser = async (req: Request, res: Response) => {
+
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const user = res.locals.user;
+
     if (!user) {
       return res.status(404).json({
-        message: 'User not found',
+        success: false,
+        message: "User not found",
       });
     }
 
-    await redisClient.del(`Token:${req.cookies.Token}`);
+    const updatedUser = await User.findByIdAndUpdate(user._id,{ isDeleted: true },{ new: true, session });
+    if (!updatedUser) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
-    await User.findByIdAndDelete(user._id);
-    res.status(200).json({
+    const keys = await redisClient.keys(`Token:${user._id}:*`);
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(200).json({
       success: true,
-      message: 'User deleted successfully',
+      message: "User account deleted successfully",
     });
-  } catch (err) {
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     return res.status(500).json({
-      message: err instanceof Error ? err.message : 'Internal server error',
-    });
+      success: false,
+      message: "Internal server error",
+    })
   }
 };
 
-const verifyUser = async (req: Request, res: Response) => {
+
+
+export const verifyUser = async (req: Request, res: Response) => {
   try {
     const user = res.locals.user;
     const seller = await Seller.findOne({ userId: user._id }).populate<{
@@ -230,4 +265,3 @@ const verifyUser = async (req: Request, res: Response) => {
   }
 };
 
-export { Register, Login, Logout, deleteUser, verifyUser };
