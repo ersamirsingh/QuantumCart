@@ -95,8 +95,8 @@ export const Login = async (req: Request, res: Response) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim(), isDeleted:false });
     if (!user) {
-      return res.status(404).json({
-        message: 'Invalid credentials',
+      return res.status(401).json({
+        message: 'Invalid credential',
       });
     }
 
@@ -148,7 +148,7 @@ export const Login = async (req: Request, res: Response) => {
 export const Logout = async (req: Request, res: Response) => {
   try {
     const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
-
+    // console.log(Token)
     if (!Token) {
       return res.status(401).json({
         message: 'Unauthorized',
@@ -156,7 +156,9 @@ export const Logout = async (req: Request, res: Response) => {
     }
 
     const JWT_SECRET = process.env.JWT_SECRET as string;
-    if(!JWT_SECRET) throw new Error('Internal server error');
+    if(!JWT_SECRET) 
+      throw new Error('Internal server error');
+    
     const payload = jwt.verify(Token, JWT_SECRET) as JwtPayload;
     if (!payload) {
       return res.status(401).json({
@@ -164,7 +166,7 @@ export const Logout = async (req: Request, res: Response) => {
       });
     }
 
-    await redisClient.set(`Token:${Token}`, 'Blocked');
+    await redisClient.set(`Token:${Token}`, res.locals.user._id.toString());
     await redisClient.expireAt(`Token:${Token}`, payload.exp as number);
     res.clearCookie('Token');
 
@@ -212,6 +214,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    res.clearCookie("Token")
 
     return res.status(200).json({
       success: true,
