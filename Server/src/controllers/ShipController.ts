@@ -28,16 +28,15 @@ function generateTrackingNumber(courierName: string): string {
 
 export const shipOrder = async (req: Request, res: Response) => {
 
-  try {
+  try {    
 
-    const orderId = new Types.ObjectId(req.body.orderId);
-    if(!Types.ObjectId.isValid(orderId)){
-      return res.status(400).json({ message: 'Invalid order id' });
-    }
-
-    const { orderWeight } = req.body || {};
+    const { orderWeight, orderId } = req.body || {};
     if (!orderId || !orderWeight) {
       return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    if(!Types.ObjectId.isValid(orderId)){
+      return res.status(400).json({ message: 'Invalid order id' });
     }
 
     const order = await Order.findById(orderId);

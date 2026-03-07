@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import {
-  getSellerProduct,
   getProductById,
   getAllProducts,
 } from '../controllers/ProductController';
