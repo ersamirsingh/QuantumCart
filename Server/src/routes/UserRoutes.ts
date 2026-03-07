@@ -5,8 +5,8 @@ import {
   updateUserInfo,
   addAddress,
   getAddresses,
-  fetchMyOrders,
 } from '../controllers/UserController';
+import { fetchMyOrders } from '../controllers/OrderController';
 
 const userRouter: Router = Router();
 
