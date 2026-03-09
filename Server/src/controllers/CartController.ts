@@ -63,17 +63,8 @@ export const removeFromCart = async (req: Request, res: Response) => {
   try {
     session.startTransaction();
 
-    const userId = res.locals.user?._id;
-    const productId = new Types.ObjectId(req.params.productId as string);
-    if (!Types.ObjectId.isValid(productId)) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        success: false,
-        message: 'ProductId is required',
-      });
-    }
-
+    const userId = new Types.ObjectId(res.locals.user?._id);
+    const {productId} = req.params;
     if (!Types.ObjectId.isValid(productId)) {
       await session.abortTransaction();
       session.endSession();
@@ -84,7 +75,6 @@ export const removeFromCart = async (req: Request, res: Response) => {
     }
 
     const cart = await Cart.findOne({ userId }).session(session);
-
     if (!cart) {
       await session.abortTransaction();
       session.endSession();
@@ -94,9 +84,7 @@ export const removeFromCart = async (req: Request, res: Response) => {
       });
     }
 
-    const cartItem = cart.items.find(
-      item => item.productId === productId
-    );
+    const cartItem = cart.items.find(item => item.productId.equals(productId));
 
     if (!cartItem) {
       await session.abortTransaction();
@@ -140,6 +128,7 @@ export const removeFromCart = async (req: Request, res: Response) => {
   }
 };
 
+
 export const clearCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
@@ -164,10 +153,10 @@ export const clearCart = async (req: Request, res: Response) => {
   }
 };
 
+
 export const getCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
-
     const cart = await Cart.findOne({ userId }).populate('items.productId', 'name price images').lean();
 
     if (!cart) {
@@ -189,7 +178,6 @@ export const getCart = async (req: Request, res: Response) => {
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
-
 
 
 export const removeItemCompletely = async (req: Request, res: Response) => {

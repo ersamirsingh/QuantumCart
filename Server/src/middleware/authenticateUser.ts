@@ -8,11 +8,9 @@ export interface IPayload extends JwtPayload {
   email?: string;
 }
 
-const authenticateUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<Response | void> => {
+
+const authenticateUser = async ( req: Request, res: Response, next: NextFunction ): Promise<Response | void> => {
+
   try {
     const Token =
       req.cookies?.Token || req.headers.authorization?.split(' ')[1];

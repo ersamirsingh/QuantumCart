@@ -32,7 +32,7 @@ app.use('/cart', cartRouter);
 
 const startServer = async (): Promise<void> => {
   try {
-    await Promise.allSettled([connectMongo(), connectRedis()]);
+    await Promise.all([connectMongo(), connectRedis()]);
 
     const PORT = process.env.PORT || 5000;
 

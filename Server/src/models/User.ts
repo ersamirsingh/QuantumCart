@@ -24,6 +24,7 @@ export interface IUser extends Document {
    email: string;
    password: string;
    role: UserRole;
+   isDeleted: boolean;
    isVerified: boolean;
    addresses: IAddress[];
 }
@@ -43,16 +44,29 @@ const AddressSchema = new Schema<IAddress>({
 
 const UserSchema = new Schema<IUser>({
    name: { type: String, required: true, trim: true },
-   email: { type: String, required: true, unique: true, index: true },
+   email: { type: String, required: true},
    password: { type: String, required: true },
    role: {
       type: String,
       enum: Object.values(UserRole),
       required: true,
    },
+   isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+   },
    isVerified: { type: Boolean, default: false },
    addresses: [AddressSchema],
 }, { timestamps: true }
+);
+
+UserSchema.index(
+   { email: 1 },
+   {
+      unique: true,
+      partialFilterExpression: { isDeleted: false },
+   }
 );
 
 export const User = model<IUser>("User", UserSchema);

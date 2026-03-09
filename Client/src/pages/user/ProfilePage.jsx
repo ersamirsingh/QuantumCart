@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { checkAuth, logoutUser } from "../../store/slices/authSlice";
+import { checkAuth, logoutUser, deleteUser } from "../../store/slices/authSlice";
 import { updateUser } from "../../store/slices/userSlice";
 import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
 import { useNavigate } from "react-router";
@@ -872,9 +872,13 @@ export default function ProfilePage() {
                   <button
                      className="pf-nav-item"
                      style={{ color: "rgba(248,113,113,0.7)" }}
-                     onClick={() => dispatch(logoutUser())}
+                     onClick={() =>{
+                        const res = confirm("delete account?");
+                        if(res) dispatch(deleteUser());
+                        navigate('/');
+                     }}
                   >
-                     <LogOut size={15} color="#f87171" /> Logout
+                     <LogOut size={15} color="#f87171" /> Delete
                   </button>
                </aside>
 

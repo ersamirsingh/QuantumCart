@@ -9,6 +9,8 @@ import {
   removeProduct,
   updateProduct,
 } from '../controllers/ProductController';
+import { getSellerOrders } from '../controllers/OrderController';
+
 
 const sellerRouter: Router = Router();
 
@@ -19,5 +21,7 @@ sellerRouter.get('/products', authenticateSeller, getSellerProduct);
 sellerRouter.get('/product/:productId', authenticateSeller, getProductById);
 sellerRouter.delete('/product/:productId', authenticateSeller, removeProduct);
 sellerRouter.patch('/product/:productId', authenticateSeller, updateProduct);
+sellerRouter.get('/orders', authenticateSeller, getSellerOrders);
+
 
 export default sellerRouter;
