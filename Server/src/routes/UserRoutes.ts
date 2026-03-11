@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import authenticateUser from '../middleware/AuthenticateUser';
+import authenticateUser from '../middleware/authenticateUser';
 import {
   userInfo,
   updateUserInfo,
   addAddress,
   getAddresses,
-  fetchMyOrders,
 } from '../controllers/UserController';
+import { fetchMyOrders } from '../controllers/OrderController';
 
 const userRouter: Router = Router();
 

@@ -6,13 +6,15 @@ import {
   removeFromCart,
   removeItemCompletely,
 } from '../controllers/CartController';
-import authenticateUser from '../middleware/AuthenticateUser';
+import authenticateUser from '../middleware/authenticateUser';
 const cartRouter = Router();
 
 cartRouter.get('/', authenticateUser, getCart);
 cartRouter.post('/add', authenticateUser, addToCart);
 cartRouter.delete('/clear', authenticateUser, clearCart);
-cartRouter.delete('/remove/:productId', authenticateUser, removeFromCart);
+cartRouter.patch('/remove/:productId', authenticateUser, removeFromCart);
 cartRouter.delete('/delete/:productId', authenticateUser, removeItemCompletely);
+
+
 
 export default cartRouter;

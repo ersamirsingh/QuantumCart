@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://quantumcart-1gaq.onrender.com',
     credentials: true,
   })
 );
@@ -32,7 +32,7 @@ app.use('/cart', cartRouter);
 
 const startServer = async (): Promise<void> => {
   try {
-    await Promise.allSettled([connectMongo(), connectRedis()]);
+    await Promise.all([connectMongo(), connectRedis()]);
 
     const PORT = process.env.PORT || 5000;
 

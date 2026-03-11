@@ -6,7 +6,7 @@ import {
   deleteUser,
   verifyUser,
 } from '../controllers/AuthController';
-import authenticateUser from '../middleware/AuthenticateUser';
+import authenticateUser from '../middleware/authenticateUser';
 
 const authRouter: Router = Router();
 

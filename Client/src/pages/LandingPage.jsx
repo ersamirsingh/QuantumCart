@@ -7,7 +7,7 @@ import {
 import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
-import { fetchCart } from "../store/slices/cartSlice";
+import { addToCart, fetchCart } from "../store/slices/cartSlice";
 import { getProducts } from "../store/slices/productSlice";
 
 const NAV_LINKS = [
@@ -145,7 +145,7 @@ function ProductCard({ product }) {
           </div>
         )}
         <div className="qch-pcard-overlay">
-          <button className="qch-pcard-cart" onClick={(e) => e.stopPropagation()}>
+          <button className="qch-pcard-cart" onClick={() => addToCart(product._id)}>
             <ShoppingCart size={16} /> Add to Cart
           </button>
         </div>

@@ -3,11 +3,10 @@ import { Types } from 'mongoose';
 import { Seller } from '../models/Seller';
 import { Product } from '../models/Product';
 
-export const addProduct = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const addProduct = async ( req: Request, res: Response ): Promise<Response | void> => {
+
   try {
+
     let { name, description, price, discount, stock, images } = req.body || {};
 
     if (!name || !description || price == null || stock == null) {
@@ -55,9 +54,11 @@ export const addProduct = async (
   }
 };
 
+
 export const removeProduct = async (req: Request, res: Response) => {
+
   try {
-    const { productId } = req.params;
+    const productId = new Types.ObjectId(req.params.productId as string);
     const sellerId = new Types.ObjectId(res.locals.user._id);
 
     if (!Types.ObjectId.isValid(productId)) {
@@ -96,8 +97,10 @@ export const removeProduct = async (req: Request, res: Response) => {
 };
 
 export const updateProduct = async (req: Request, res: Response) => {
+
   try {
-    const productId = new Types.ObjectId(req.params.productId);
+
+    const productId = new Types.ObjectId(req.params.productId as string);
     if (!Types.ObjectId.isValid(productId))
       return res.status(400).json({ message: 'Missing productId' });
 
@@ -146,6 +149,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
+
 export const getSellerProduct = async (req: Request, res: Response) => {
   try {
     const products = await Product.find({ sellerId: res.locals.user?._id });
@@ -157,9 +161,12 @@ export const getSellerProduct = async (req: Request, res: Response) => {
   }
 };
 
+
+
 export const getProductById = async (req: Request, res: Response) => {
+
   try {
-    const productId = new Types.ObjectId(req.params.productId);
+    const productId = new Types.ObjectId(req.params.productId as string);
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
 
@@ -170,6 +177,8 @@ export const getProductById = async (req: Request, res: Response) => {
     });
   }
 };
+
+
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {

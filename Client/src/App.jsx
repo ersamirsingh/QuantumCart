@@ -27,6 +27,8 @@ import ProductsPage from './pages/Product/ProductsPage.jsx';
 import DisplayProductPage from './pages/Product/DisplayProductPage.jsx';
 // import OrdersPage from './pages/Orders/OrdersPage';
 // import OrderDetailPage from './pages/Orders/OrderDetailPage';
+import SellerAnalytics from './pages/Seller/SellerAnalytics.jsx';
+import SellerOrderManagement from './pages/Seller/SellerOrdermanagement.jsx';
 
 
 
@@ -151,8 +153,7 @@ function App() {
           }
         />
 
-        * ── Orders ──
-        * <Route
+        <Route
           path="/orders"
           element={
             <PrivateRoute isAuthenticated={isAuthenticated}>
@@ -161,7 +162,6 @@ function App() {
           }
         />
 
-        {/* ── User Profile ── */}
         <Route
           path="/user/profile"
           element={
@@ -171,23 +171,41 @@ function App() {
           }
         />
 
-        {/* ── Seller ── */}
-        <Route
+        {/* <Route
+          path="/seller/profile"
+          element={
+            // <PrivateRoute isAuthenticated={isAuthenticated}>
+              <SellerProfile />
+            // </Priv/ateRoute>
+          }
+        /> */}
+
+        {/* <Route
           path="/become-seller"
           element={
             <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["CUSTOMER"]}>
               <SellerProfile />
             </RoleRoute>
           }
-        />
-        {/* <Route
-          path="/seller/dashboard"
+        /> */}
+
+        <Route
+          path="/seller/analytics"
           element={
-            <RoleRoute isAuthenticated={isAuthenticated} user={user} role="SELLER">
-              <SellerDashboardPage />
+            <PrivateRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
+              <SellerAnalytics />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/seller/orders"
+          element={
+            <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
+              <SellerOrderManagement />
             </RoleRoute>
           }
-        /> */}
+        />
 
         <Route path="*" element={<NotFoundPage />} />
 

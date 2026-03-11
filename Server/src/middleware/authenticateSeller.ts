@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { redisClient } from '../config/Redis';
 import jwt from 'jsonwebtoken';
-import { IPayload } from './AuthenticateUser';
+import { IPayload } from './authenticateUser';
 import { User, UserRole } from '../models/User';
 import { Seller } from '../models/Seller';
 
-const authenticateSeller = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<Response | void> => {
+
+
+const authenticateSeller = async (req: Request, res: Response, next: NextFunction ): Promise<Response | void> => {
+
   try {
     const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
     if (!Token) {

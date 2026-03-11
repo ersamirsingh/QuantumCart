@@ -11,6 +11,7 @@ import {
    removeFromCart,
    clearCart,
    clearSuccessMessage,
+   removeItemCompletely,
 } from "../../store/slices/cartSlice";
 import LoadingPage from "../../components/LoadingPage";
 
@@ -91,14 +92,17 @@ function CartItem({ item, updating }) {
             <span className="cart-subtotal-units">{quantity} × {formatPrice(product.price)}</span>
          </div>
 
-         {/* <button
+         <button
             className="cart-item-remove"
-            onClick={() => dispatch(removeFromCart(product._id))}
+            onClick={() => {
+               dispatch(removeItemCompletely(product._id))
+               dispatch(fetchCart())
+            }}
             disabled={updating}
             title="Remove from cart"
          >
             <X size={16} />
-         </button> */}
+         </button>
       </div>
    );
 }
@@ -128,7 +132,7 @@ export default function CartPage() {
 
    const handleClearCart = () => dispatch(clearCart());
 
-   const validItems = cart?.items.filter((item) => {
+   const validItems = cart?.items?.filter((item) => {
       return item.productId
    });
 
