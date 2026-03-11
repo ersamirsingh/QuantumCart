@@ -127,7 +127,7 @@ export const Login = async (req: Request, res: Response) => {
       maxAge: Number(process.env.JWT_MAX_AGE),
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       user: {
         id: user._id,

@@ -1,55 +1,139 @@
 import { Request, Response } from 'express';
 import { Order, OrderStatus, PaymentStatus } from '../models/Order';
 import { User } from '../models/User';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
+import { Product } from '../models/Product';
 
 
+
+// export const makeOrder = async (req: Request, res: Response) => {
+//   try {
+//     const userId = new Types.ObjectId(res.locals.user?._id);
+//     const { items, addressId, sellerId } = req.body;
+
+//     const shippingAddress = await User.findOne(
+//       { _id: userId, 'addresses._id': addressId },
+//       { 'addresses.$': 1 }
+//     );
+
+//     if (!items || items.length === 0) {
+//       return res.status(400).json({ message: 'Invalid order data' });
+//     }
+
+//     let totalAmount = 0;
+
+//     for (let item of items) {
+//       if (!item.productId || item.quantity <= 0) {
+//         return res.status(400).json({ message: 'Invalid order data' });
+//       }
+
+//       totalAmount += item.quantity * item.price;
+//     }
+
+//     const order = await Order.create({
+//       userId,
+//       sellerId,
+//       items,
+//       totalAmount,
+//       shippingAddress,
+//       orderStatus: OrderStatus.PLACED,
+//       paymentStatus: PaymentStatus.PENDING,
+//     });
+
+//     return res.status(201).json({
+//       message: 'Order placed successfully',
+//       order,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: 'Failed to create order',
+//       error,
+//     });
+//   }
+// };
 
 
 export const makeOrder = async (req: Request, res: Response) => {
+  const session = await mongoose.startSession();
+
   try {
-    const userId = new Types.ObjectId(res.locals.user?._id);
+    session.startTransaction();
+
+    const userId = new Types.ObjectId(res.locals.user._id);
     const { items, addressId } = req.body;
-    const shippingAddress = await User.findOne(
-      { _id: userId, 'addresses._id': addressId },
-      { 'addresses.$': 1 }
-    );
 
     if (!items || items.length === 0) {
-      return res.status(400).json({ message: 'Invalid order data' });
+      return res.status(400).json({ message: "Invalid order data" });
+    }
+
+    const shippingAddress = await User.findOne(
+      { _id: userId, "addresses._id": addressId },
+      { "addresses.$": 1 }
+    );
+
+    if (!shippingAddress) {
+      return res.status(404).json({ message: "Address not found" });
     }
 
     let totalAmount = 0;
+    const orderItems = [];
 
-    for (let item of items) {
-      if (!item.productId || item.quantity <= 0) {
-        return res.status(400).json({ message: 'Invalid order data' });
+    for (const item of items) {
+      const product = await Product.findById(item.productId).session(session);
+
+      if (!product) {
+        throw new Error("Product not found");
       }
 
-      totalAmount += item.quantity * item.price;
+      if (product.stock < item.quantity) {
+        throw new Error("Insufficient stock");
+      }
+
+      const priceAtPurchase = product.price;
+
+      totalAmount += priceAtPurchase * item.quantity;
+
+      orderItems.push({
+        productId: product._id,
+        sellerId: product.sellerId,
+        quantity: item.quantity,
+        priceAtPurchase,
+      });
+
+      product.stock -= item.quantity;
+      await product.save({ session });
     }
 
-    const order = await Order.create({
-      userId,
-      items,
-      totalAmount,
-      shippingAddress,
-      orderStatus: OrderStatus.PLACED,
-      paymentStatus: PaymentStatus.PENDING,
-    });
+    const order = await Order.create(
+      [
+        {
+          userId,
+          items: orderItems,
+          totalAmount,
+          shippingAddress,
+          orderStatus: OrderStatus.PLACED,
+          paymentStatus: PaymentStatus.PENDING,
+        },
+      ],
+      { session }
+    );
+
+    await session.commitTransaction();
 
     return res.status(201).json({
-      message: 'Order placed successfully',
-      order,
+      success: true,
+      order: order[0],
     });
   } catch (error) {
+    await session.abortTransaction();
+
     return res.status(500).json({
-      message: 'Failed to create order',
-      error,
+      message: "Failed to create order",
     });
+  } finally {
+    session.endSession();
   }
 };
-
 
 export const confirmOrder = async (req: Request, res: Response) => {
   try {
