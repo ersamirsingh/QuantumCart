@@ -48,6 +48,7 @@ function App() {
 
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+  console.log(isAuthenticated)
 
   useEffect(() => {
     dispatch(checkAuth());
@@ -130,7 +131,7 @@ function App() {
         <Route
           path="/seller/product/:id"
           element={
-            <RoleRoute isAuthenticated={isAuthenticated}>
+            <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
               <ProductViewPage />
             </RoleRoute>
           }

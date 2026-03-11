@@ -7,7 +7,7 @@ import {
 import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../store/slices/authSlice";
-import { addToCart, fetchCart } from "../store/slices/cartSlice";
+import { fetchCart } from "../store/slices/cartSlice";
 import { getProducts } from "../store/slices/productSlice";
 
 const NAV_LINKS = [
@@ -145,7 +145,7 @@ function ProductCard({ product }) {
           </div>
         )}
         <div className="qch-pcard-overlay">
-          <button className="qch-pcard-cart" onClick={() => addToCart(product._id)}>
+          <button className="qch-pcard-cart" onClick={() => navigate(`/product/${product._id}`)}>
             <ShoppingCart size={16} /> Add to Cart
           </button>
         </div>
@@ -196,6 +196,7 @@ function ProductCard({ product }) {
 }
 
 export default function LandingPage() {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
@@ -206,7 +207,7 @@ export default function LandingPage() {
   
   const [heroIndex, setHeroIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  // const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
@@ -214,16 +215,16 @@ export default function LandingPage() {
 
   // Fetch cart and products on mount if user is logged in
   useEffect(() => {
-    dispatch(getProducts());
-    if (user) {
-      dispatch(fetchCart());
+    if (!products || products.length === 0) {
+      dispatch(getProducts());
     }
-  }, [user, dispatch]);
+    if (user) {
+      if(!cart) dispatch(fetchCart());
+    }
+  }, [products, user, dispatch, cart]);
 
-  // Calculate cart count from Redux
   const cartCount = cart?.items?.filter(item => item.product)?.length || 0;
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -248,7 +249,6 @@ export default function LandingPage() {
     timerRef.current = setInterval(() => setHeroIndex((i) => (i + 1) % HERO_SLIDES.length), 5000);
   };
 
-  // Get initials for avatar
   const getInitials = (name) => {
     if (!name) return "U";
     return name
