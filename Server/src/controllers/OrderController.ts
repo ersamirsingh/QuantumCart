@@ -66,19 +66,25 @@ export const makeOrder = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid order data" });
     }
 
-    const shippingAddress = await User.findOne(
-      { _id: userId, "addresses._id": addressId },
+    const addressObjectId = new Types.ObjectId(addressId as string)
+    const user = await User.findOne(
+      {_id: userId, "addresses._id": addressObjectId },    //Error
       { "addresses.$": 1 }
-    );
+    ).lean();
 
-    if (!shippingAddress) {
+    if (!user || !user.addresses || user.addresses.length === 0) {
       return res.status(404).json({ message: "Address not found" });
     }
 
     let totalAmount = 0;
     const orderItems = [];
-
     for (const item of items) {
+
+      if (item.quantity <= 0 || !item.productId) {
+        await session.abortTransaction();
+        return res.status(400).json({ message: "Invalid order data" });
+      }
+
       const product = await Product.findById(item.productId).session(session);
 
       if (!product) {
@@ -90,14 +96,13 @@ export const makeOrder = async (req: Request, res: Response) => {
       }
 
       const priceAtPurchase = product.price;
-
       totalAmount += priceAtPurchase * item.quantity;
 
       orderItems.push({
         productId: product._id,
         sellerId: product.sellerId,
         quantity: item.quantity,
-        priceAtPurchase,
+        price: priceAtPurchase,
       });
 
       product.stock -= item.quantity;
@@ -110,7 +115,7 @@ export const makeOrder = async (req: Request, res: Response) => {
           userId,
           items: orderItems,
           totalAmount,
-          shippingAddress,
+          shippingAddress: user.addresses[0],
           orderStatus: OrderStatus.PLACED,
           paymentStatus: PaymentStatus.PENDING,
         },
@@ -201,7 +206,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
 
 
 export const fetchMyOrders = async (req: Request, res: Response) => {
-  
+
   try {
     const user = res.locals.user;
     if (!user) {
