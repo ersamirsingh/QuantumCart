@@ -2,11 +2,11 @@ import { User } from '../models/User';
 import { Request, Response } from 'express';
 import { Seller } from '../models/Seller';
 import { Types } from 'mongoose';
+import bcrypt from 'bcrypt'
 
 
 
-
-const userInfo = async ( req: Request, res: Response ): Promise<Response | void> => {
+export const userInfo = async ( req: Request, res: Response ): Promise<Response | void> => {
 
   try {
     const user = res.locals.user;
@@ -26,8 +26,7 @@ const userInfo = async ( req: Request, res: Response ): Promise<Response | void>
 };
 
 
-
-const updateUserInfo = async ( req: Request, res: Response): Promise<Response | void> => {
+export const updateUserInfo = async ( req: Request, res: Response): Promise<Response | void> => {
 
   try {
     const user = res.locals.user;
@@ -47,7 +46,7 @@ const updateUserInfo = async ( req: Request, res: Response): Promise<Response | 
 };
 
 
-const addAddress = async (req: Request, res: Response) => {
+export const addAddress = async (req: Request, res: Response) => {
 
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
@@ -79,8 +78,7 @@ const addAddress = async (req: Request, res: Response) => {
 };
 
 
-
-const getAddresses = async (req: Request, res: Response) => {
+export const getAddresses = async (req: Request, res: Response) => {
 
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
@@ -102,5 +100,39 @@ const getAddresses = async (req: Request, res: Response) => {
 };
 
 
+export const updatePassword = async (req: Request, res: Response) => {
 
-export { userInfo, updateUserInfo, addAddress, getAddresses };
+  try {
+    const userId = new Types.ObjectId(res.locals.user._id);
+    if (!userId) {
+      return res.status(404).json({ sucess: false, message: 'User not found' });
+    }
+
+    const { currPassword, newPassword } = req.body;
+    if(!currPassword || !newPassword) {
+      return res.status(400).json({sucess: false, message: 'Missing required fields' });
+    }
+
+    const user = await User.findById(userId).select('+password');
+    if (!user) {
+      return res.status(404).json({sucess: false, message: 'User not found' });
+    }
+
+    const isValid = await bcrypt.compare(currPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({sucess: false,  message: 'Invalid credentials' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({sucess: true,  message: 'Password changed successfully' });
+  } catch (error) {
+    return res.status(500).json({
+      sucess: false, 
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
+};
+
