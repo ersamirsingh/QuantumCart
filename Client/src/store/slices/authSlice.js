@@ -60,7 +60,6 @@ export const deleteUser = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const { data } = await axiosClient.delete('/auth/delete');
-            console.log(data);
             return data;
         } catch (error) {
             return rejectWithValue(error);

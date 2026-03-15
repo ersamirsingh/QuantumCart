@@ -8,11 +8,10 @@ import {
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { checkAuth, logoutUser, deleteUser } from "../../store/slices/authSlice";
-import { updateUser } from "../../store/slices/userSlice";
+import { updatePassword, updateUser } from "../../store/slices/userSlice";
 import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
 import { useNavigate } from "react-router";
 import LoadingPage from "../../components/LoadingPage";
-
 
 
 
@@ -142,6 +141,262 @@ function RemoveModal({ onClose, onConfirm, loading }) {
    );
 }
 
+const getPwdStrength = (pwd) => {
+   let score = 0;
+   if (pwd.length >= 8) score++;
+   if (/[A-Z]/.test(pwd)) score++;
+   if (/[0-9]/.test(pwd)) score++;
+   if (/[^A-Za-z0-9]/.test(pwd)) score++;
+   return score; // 0–4
+};
+const strengthMeta = [
+   { label: "Too Weak",   color: "#ef4444", bar: "rgba(239,68,68,0.8)" },
+   { label: "Weak",       color: "#f97316", bar: "rgba(249,115,22,0.8)" },
+   { label: "Fair",       color: "#eab308", bar: "rgba(234,179,8,0.8)" },
+   { label: "Strong",     color: "#22c55e", bar: "rgba(34,197,94,0.8)" },
+   { label: "Very Strong",color: "#16a34a", bar: "rgba(22,163,74,0.8)" },
+];
+
+function PwdField({ name, label, value, showPwd, onToggle, onChange, disabled }) {
+   return (
+      <div style={{ marginBottom: 16 }}>
+         <label style={{
+            display: "block", fontSize: 10, fontWeight: 700,
+            letterSpacing: "0.9px", textTransform: "uppercase",
+            color: "rgba(255,255,255,0.4)", marginBottom: 7,
+         }}>{label}</label>
+         <div style={{ position: "relative" }}>
+            <input
+               type={showPwd ? "text" : "password"}
+               name={name}
+               value={value}
+               onChange={onChange}
+               disabled={disabled}
+               style={{
+                  width: "100%", padding: "12px 42px 12px 14px",
+                  borderRadius: 12, boxSizing: "border-box",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "#fff", fontFamily: "'DM Sans',sans-serif",
+                  fontSize: 14, outline: "none",
+                  transition: "border-color 0.2s, box-shadow 0.2s",
+               }}
+               onFocus={(e) => e.target.style.borderColor = "rgba(0,198,255,0.45)"}
+               onBlur={(e)  => e.target.style.borderColor = "rgba(255,255,255,0.1)"}
+            />
+            <button
+               type="button"
+               onClick={() => onToggle(name)}
+               style={{
+                  position: "absolute", right: 12, top: "50%",
+                  transform: "translateY(-50%)", background: "none",
+                  border: "none", cursor: "pointer", padding: 0,
+                  color: "rgba(255,255,255,0.3)", display: "flex",
+                  alignItems: "center", justifyContent: "center",
+               }}
+            >
+               {showPwd ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+         </div>
+      </div>
+   );
+}
+
+// ── CHANGE PASSWORD MODAL ──────────────────────────────────────
+function ChangePasswordModal({ onClose }) {
+   const [form, setForm] = useState({ current: "", newPwd: "", confirm: "" });
+   const [show, setShow] = useState({ current: false, newPwd: false, confirm: false });
+   const [error, setError] = useState("");
+   const [success, setSuccess] = useState(false);
+   const [loading, setLoading] = useState(false);
+   const dispatch = useDispatch()
+
+   const strength = getPwdStrength(form.newPwd);
+   const meta = strengthMeta[strength] || strengthMeta[0];
+
+   const rules = [
+      { label: "At least 8 characters",    pass: form.newPwd.length >= 8 },
+      { label: "One uppercase letter",      pass: /[A-Z]/.test(form.newPwd) },
+      { label: "One number",               pass: /[0-9]/.test(form.newPwd) },
+      { label: "One special character",    pass: /[^A-Za-z0-9]/.test(form.newPwd) },
+   ];
+
+   const toggle = (field) => setShow((p) => ({ ...p, [field]: !p[field] }));
+
+   const handleChange = (e) => {
+      setError("");
+      setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+   };
+
+   const handleSubmit = async () => {
+      if (!form.current)                    return setError("Please enter your current password.");
+      if (form.newPwd.length < 8)           return setError("New password must be at least 8 characters.");
+      if (strength < 2)                     return setError("New password is too weak.");
+      if (form.newPwd !== form.confirm)     return setError("Passwords do not match.");
+      if (form.newPwd === form.current)     return setError("New password must differ from current.");
+
+      setLoading(true);
+      try {
+         await dispatch(updatePassword({ currPassword: form.current, newPassword: form.newPwd })).unwrap();
+         setSuccess(true)
+      } catch (err) {
+         setError(err?.message || "Failed to change password. Please try again.");
+      } finally {
+
+         setLoading(false);
+      }
+   };
+
+   return (
+      <div className="pf-modal-bg" onClick={() => !loading && !success && onClose()}>
+         <div
+            className="pf-modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{ borderColor: "rgba(0,198,255,0.2)", maxWidth: 460 }}
+         >
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 22 }}>
+               <div style={{
+                  width: 42, height: 42, borderRadius: "50%",
+                  background: "rgba(0,198,255,0.1)", border: "1px solid rgba(0,198,255,0.2)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+               }}>
+                  <Lock size={18} color="#00c6ff" />
+               </div>
+               <div>
+                  <h3 style={{
+                     fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 800,
+                     color: "#fff", letterSpacing: "-0.3px", marginBottom: 2,
+                  }}>Change Password</h3>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>
+                     Update your account password securely
+                  </p>
+               </div>
+               <button
+                  onClick={onClose}
+                  disabled={loading}
+                  style={{
+                     marginLeft: "auto", width: 30, height: 30, borderRadius: 8,
+                     background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
+                     color: "rgba(255,255,255,0.4)", cursor: "pointer",
+                     display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+               >
+                  <X size={13} />
+               </button>
+            </div>
+
+            {/* Success state */}
+            {success ? (
+               <div style={{
+                  padding: "20px 16px", borderRadius: 14, textAlign: "center",
+                  background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.2)",
+                  marginBottom: 8,
+               }}>
+                  <CheckCircle size={32} color="#22c55e" style={{ marginBottom: 10 }} />
+                  <p style={{ color: "#22c55e", fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
+                     Password Updated!
+                  </p>
+                  <p style={{ color: "rgba(34,197,94,0.6)", fontSize: 12 }}>
+                     Your password has been changed successfully.
+                  </p>
+               </div>
+            ) : (
+               <>
+                  <PwdField name="current" label="Current Password"   value={form.current} showPwd={show.current} onToggle={toggle} onChange={handleChange} disabled={loading || success} />
+                  <PwdField name="newPwd"  label="New Password"       value={form.newPwd}  showPwd={show.newPwd}  onToggle={toggle} onChange={handleChange} disabled={loading || success} />
+
+                  {/* Strength bar — only show when typing new password */}
+                  {form.newPwd.length > 0 && (
+                     <div style={{ marginBottom: 16, marginTop: -8 }}>
+                        {/* Bar */}
+                        <div style={{
+                           height: 4, borderRadius: 4,
+                           background: "rgba(255,255,255,0.07)", marginBottom: 6,
+                           overflow: "hidden",
+                        }}>
+                           <div style={{
+                              height: "100%", borderRadius: 4,
+                              width: `${(strength / 4) * 100}%`,
+                              background: meta.bar,
+                              transition: "width 0.35s ease, background 0.35s ease",
+                           }} />
+                        </div>
+                        {/* Label + rules */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                           <span style={{ fontSize: 11, fontWeight: 700, color: meta.color }}>{meta.label}</span>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 12px" }}>
+                           {rules.map((r) => (
+                              <div key={r.label} style={{
+                                 display: "flex", alignItems: "center", gap: 6,
+                                 fontSize: 11, color: r.pass ? "#22c55e" : "rgba(255,255,255,0.3)",
+                              }}>
+                                 <span style={{ fontSize: 10 }}>{r.pass ? "✓" : "○"}</span>
+                                 {r.label}
+                              </div>
+                           ))}
+                        </div>
+                     </div>
+                  )}
+
+                  <PwdField name="confirm" label="Confirm New Password" value={form.confirm} showPwd={show.confirm} onToggle={toggle} onChange={handleChange} disabled={loading || success} />
+
+                  {/* Match indicator */}
+                  {form.confirm.length > 0 && (
+                     <div style={{
+                        marginTop: -10, marginBottom: 14,
+                        fontSize: 11, fontWeight: 600,
+                        color: form.newPwd === form.confirm ? "#22c55e" : "#f87171",
+                        display: "flex", alignItems: "center", gap: 5,
+                     }}>
+                        {form.newPwd === form.confirm
+                           ? <><Check size={11} /> Passwords match</>
+                           : <><X size={11} /> Passwords do not match</>}
+                     </div>
+                  )}
+
+                  {/* Error */}
+                  {error && (
+                     <div style={{
+                        padding: "10px 14px", borderRadius: 10, marginBottom: 14,
+                        background: "rgba(248,113,113,0.07)",
+                        border: "1px solid rgba(248,113,113,0.2)",
+                        color: "#f87171", fontSize: 12, fontWeight: 600,
+                        display: "flex", alignItems: "center", gap: 7,
+                     }}>
+                        <AlertTriangle size={12} /> {error}
+                     </div>
+                  )}
+
+                  {/* Actions */}
+                  <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                     <button
+                        className="pf-btn-cancel"
+                        onClick={onClose}
+                        disabled={loading}
+                        style={{ flex: 1 }}
+                     >
+                        Cancel
+                     </button>
+                     <button
+                        className="pf-btn-save"
+                        onClick={handleSubmit}
+                        disabled={loading || !form.current || !form.newPwd || !form.confirm}
+                        style={{ flex: 1.6, justifyContent: "center" }}
+                     >
+                        {loading
+                           ? <><div className="pf-spin" /> Updating…</>
+                           : <><Lock size={13} /> Update Password</>}
+                     </button>
+                  </div>
+               </>
+            )}
+         </div>
+      </div>
+   );
+}
+
 
 export default function ProfilePage() {
 
@@ -152,7 +407,7 @@ export default function ProfilePage() {
    const navigate = useNavigate()
 
    const [tab, setTab] = useState("profile");
-
+   const [showChangePwd, setShowChangePwd] = useState(false);
 
    useEffect(() => {
       if (user?.role === "SELLER") {
@@ -161,27 +416,18 @@ export default function ProfilePage() {
    }, [user?.role]);
 
    const { loading } = useSelector(s => s.auth)
-
-   /* profile edit */
    const [editing, setEditing] = useState(false);
    const [editName, setEditName] = useState("");
    const [editEmail, setEditEmail] = useState("");
    const [editSaving, setEditSaving] = useState(false);
-
-   /* seller register */
    const [storeName, setStoreName] = useState("");
    const [storeDesc, setStoreDesc] = useState("");
    const [storeNameErr, setStoreNameErr] = useState("");
    const [regLoading, setRegLoading] = useState(false);
    const [regSuccess, setRegSuccess] = useState(false);
-
-   /* seller remove */
    const [showRemove, setShowRemove] = useState(false);
    const [removeLoading, setRemoveLoading] = useState(false);
 
-   /* verification resend */
-   const [verifyLoading, setVerifyLoading] = useState(false);
-   const [verifySent, setVerifySent] = useState(false);
 
    const handleSaveProfile = async () => {
 
@@ -239,20 +485,12 @@ export default function ProfilePage() {
       }
    };
 
-   const handleResendVerification = async () => {
-      setVerifyLoading(true);
-      await new Promise((r) => setTimeout(r, 1200));
-      setVerifySent(true);
-      setVerifyLoading(false);
-      setTimeout(() => setVerifySent(false), 4000);
-   };
 
-   /* ── sidebar nav items ── */
    const navItems = [
       { id: "profile", icon: <User size={15} />, label: "My Profile" },
-      user?.role === "SELLER"
-         ? { id: "seller-dashboard", icon: <Store size={15} />, label: "Seller Dashboard" }
-         : { id: "seller-register", icon: <Store size={15} />, label: "Become a Seller" },
+      ...(user?.role === "SELLER"
+         ? [{ id: "seller-dashboard", icon: <Store size={15} />, label: "Seller Dashboard" }]
+         : []),
       { id: "orders", icon: <Package size={15} />, label: "My Orders" },
       { id: "settings", icon: <Settings size={15} />, label: "Settings" },
    ];
@@ -854,7 +1092,7 @@ export default function ProfilePage() {
                      </div>
                   </div>
 
-                  {/* Nav */}
+                  {/* Nav — "Become a Seller" intentionally excluded; shown as CTA on Profile tab only */}
                   {navItems.map((item) => (
                      <button
                         key={item.id}
@@ -895,29 +1133,6 @@ export default function ProfilePage() {
                            <h1 className="pf-section-title">My <span>Profile</span></h1>
                            <p className="pf-section-sub">Manage your personal information and account settings.</p>
                         </div>
-
-                        {/* Verification banner */}
-                        {!user.isVerified && !verifySent && (
-                           <div className="pf-verify-banner">
-                              <div className="pf-verify-icon"><AlertTriangle size={17} color="#f59e0b" /></div>
-                              <div className="pf-verify-text">
-                                 <div className="pf-verify-title">Email not verified</div>
-                                 <div className="pf-verify-sub">Verify your email to unlock all features and secure your account.</div>
-                              </div>
-                              <button
-                                 className="pf-verify-btn"
-                                 onClick={handleResendVerification}
-                                 disabled={verifyLoading}
-                              >
-                                 {verifyLoading ? <><div className="pf-spin" style={{ borderColor: "rgba(245,158,11,0.2)", borderTopColor: "#f59e0b" }} /> Sending…</> : <><Bell size={11} /> Resend Email</>}
-                              </button>
-                           </div>
-                        )}
-                        {verifySent && (
-                           <div className="pf-verify-success">
-                              <CheckCircle size={15} /> Verification email sent! Check your inbox.
-                           </div>
-                        )}
 
                         {/* Account Info card */}
                         <div className="pf-card">
@@ -982,18 +1197,22 @@ export default function ProfilePage() {
                            )}
                         </div>
 
-                        {/* Security card */}
+                        {/* ── SECURITY CARD with Change Password ── */}
                         <div className="pf-card">
                            <div className="pf-card-title">Security <div className="pf-card-title-line" /></div>
                            <InfoRow icon={<Lock size={15} />} label="Password" value="••••••••••••" />
                            <div style={{ marginTop: 16 }}>
-                              <button className="pf-edit-trigger" style={{ marginLeft: 0 }}>
+                              <button
+                                 className="pf-edit-trigger"
+                                 style={{ marginLeft: 0 }}
+                                 onClick={() => setShowChangePwd(true)}
+                              >
                                  <Lock size={12} /> Change Password
                               </button>
                            </div>
                         </div>
 
-                        {/* Become Seller CTA — only for CUSTOMER role */}
+                        {/* Become Seller CTA — only for CUSTOMER role, only shown here (not in sidebar) */}
                         {user.role === "CUSTOMER" && (
                            <div className="pf-seller-cta">
                               <div className="pf-seller-cta-inner">
@@ -1212,6 +1431,17 @@ export default function ProfilePage() {
                   onClose={() => !removeLoading && setShowRemove(false)}
                   onConfirm={handleRemoveSeller}
                   loading={removeLoading}
+               />
+            )}
+
+            {/* ── Change Password Modal ── */}
+            {showChangePwd && (
+               <ChangePasswordModal
+                  onClose={() => setShowChangePwd(false)}
+                  onSave={() => {
+                     // Optional: dispatch a changePassword action here
+                     // e.g. dispatch(changePassword({ ... }))
+                  }}
                />
             )}
          </div>
