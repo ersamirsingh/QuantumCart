@@ -488,7 +488,7 @@ export default function SellerAllProduct() {
                                  : "Add your first product to start selling."}
                            </p>
                            {!search && (
-                              <button className="ap-btn-add" onClick={() => navigate("/product/add")}>
+                              <button className="ap-btn-add" onClick={() => navigate("/seller/product/add")}>
                                  + Add Product
                               </button>
                            )}

@@ -94,10 +94,7 @@ function CartItem({ item, updating }) {
 
          <button
             className="cart-item-remove"
-            onClick={() => {
-               dispatch(removeItemCompletely(product._id))
-               dispatch(fetchCart())
-            }}
+            onClick={() => { dispatch(removeItemCompletely(product._id)) }}
             disabled={updating}
             title="Remove from cart"
          >

@@ -28,6 +28,21 @@ export const updateUser  = createAsyncThunk(
    }
 );
 
+export const updatePassword = createAsyncThunk(
+   'user/update/password',
+   async (userInfo, { rejectWithValue }) => {
+      try {
+         const res = await axiosClient.patch('/user/update/password', userInfo);
+         return res.data;
+      } catch (error) {
+         return rejectWithValue({
+            message: error.response?.data?.message || ' failed',
+            status: error.response?.status || 500,
+         });
+      }
+   }
+)
+
 const userSlice = createSlice({
    name: 'user',
    initialState: {
@@ -55,7 +70,6 @@ const userSlice = createSlice({
             state.user = null;
          })
 
-         // Login User Cases
          .addCase(updateUser.pending, state => {
             state.loading = true;
             state.error = null;
@@ -65,6 +79,20 @@ const userSlice = createSlice({
             state.user = action.payload;
          })
          .addCase(updateUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action?.payload?.response?.data || 'Something went wrong';
+            state.user = null;
+         })
+
+         .addCase(updatePassword.pending, state => {
+            state.loading = true;
+            state.error = null;
+         })
+         .addCase(updatePassword.fulfilled, (state, action) => {
+            state.loading = false;
+            state.user = action.payload;
+         })
+         .addCase(updatePassword.rejected, (state, action) => {
             state.loading = false;
             state.error = action?.payload?.response?.data || 'Something went wrong';
             state.user = null;

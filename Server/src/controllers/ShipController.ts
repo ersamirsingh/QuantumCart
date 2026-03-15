@@ -55,7 +55,7 @@ export const shipOrder = async (req: Request, res: Response) => {
       orderId,
       courierName,
       trackingNumber,
-      orderStatus: 'PENDING',
+      orderStatus: OrderStatus.SHIPPED,
     });
 
     order.orderStatus = OrderStatus.SHIPPED;

@@ -130,7 +130,7 @@ function App() {
         <Route
           path="/seller/product/:id"
           element={
-            <RoleRoute isAuthenticated={isAuthenticated}>
+            <RoleRoute isAuthenticated={isAuthenticated} user={user} role={["SELLER"]}>
               <ProductViewPage />
             </RoleRoute>
           }

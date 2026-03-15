@@ -38,7 +38,6 @@ export const removeFromCart = createAsyncThunk(
    async (productId, { rejectWithValue }) => {
       try {
          const res = await axiosClient.patch(`/cart/remove/${productId}`);
-         console.log(res.data)
          return res.data.data.items;
       } catch (error) {
          return rejectWithValue(
@@ -54,9 +53,7 @@ export const removeItemCompletely= createAsyncThunk(
    async (productId, { rejectWithValue }) => {
       try {
          const res = await axiosClient.delete(`/cart/delete/${productId}`);
-         console.log(res.data)
-         console.log(res.data)
-         return res.data.data.items;
+         return res.data.data;
       } catch (error) {
          return rejectWithValue(
             error.response?.data?.message || error.message || "Failed to remove item"
