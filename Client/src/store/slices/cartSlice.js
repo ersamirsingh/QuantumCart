@@ -53,7 +53,6 @@ export const removeItemCompletely= createAsyncThunk(
    async (productId, { rejectWithValue }) => {
       try {
          const res = await axiosClient.delete(`/cart/delete/${productId}`);
-         console.log(res.data.data)
          return res.data.data;
       } catch (error) {
          return rejectWithValue(
@@ -165,7 +164,6 @@ const cartSlice = createSlice({
          })
          .addCase(removeItemCompletely.fulfilled, (state, action) => {
             state.removing = false;
-            console.log(action.payload);
             state.cart = action.payload;
             state.successMessage = "Item removed from cart";
          })

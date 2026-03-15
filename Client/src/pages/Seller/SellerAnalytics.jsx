@@ -220,7 +220,6 @@ export default function SellerAnalytics() {
          setRevenueData(mockRevenueData);
          setLoading(false);
       } catch (error) {
-         console.error("Error fetching analytics:", error);
          setLoading(false);
       }
    };

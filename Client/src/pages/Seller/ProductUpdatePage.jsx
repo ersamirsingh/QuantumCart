@@ -109,7 +109,6 @@ export default function ProductUpdatePage() {
          try {
             const res = await axiosClient.get(`/seller/product/${id}`);
             const data = res.data;
-            console.log(data)
             setOriginal(res.data);
             setForm({
                name: data.name,
