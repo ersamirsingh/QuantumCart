@@ -6,10 +6,10 @@ import {
    Plus, CheckCircle, AlertTriangle, Package, ChevronRight,
    Truck, Shield, Tag, X,
 } from "lucide-react";
-import { fetchCart } from "../../store/slices/cartSlice";
+import { fetchCart } from "../../store/slices/cart.slice";
 import {
    fetchAddresses, addAddress, placeOrder, clearSuccessMessage,
-} from "../../store/slices/orderSlice";
+} from "../../store/slices/order.slice";
 import LoadingPage from "../../components/LoadingPage";
 
 const formatPrice = (p) => `₹${Number(p).toLocaleString("en-IN")}`;

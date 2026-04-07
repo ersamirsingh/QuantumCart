@@ -6,9 +6,9 @@ import {
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser } from "../store/slices/authSlice";
-import { fetchCart } from "../store/slices/cartSlice";
-import { getProducts } from "../store/slices/productSlice";
+import { logoutUser } from "../store/slices/auth.slice";
+import { fetchCart } from "../store/slices/cart.slice";
+import { getProducts } from "../store/slices/product.slice";
 
 const NAV_LINKS = [
   { label: "Home", path: "/" },

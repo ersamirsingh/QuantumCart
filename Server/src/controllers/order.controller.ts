@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
-import { Order, OrderStatus, PaymentStatus } from '../models/Order';
-import { User } from '../models/User';
+import { Order, OrderStatus, PaymentStatus } from '../models/order.model';
+import { User } from '../models/user.model';
 import mongoose, { Types } from 'mongoose';
-import { Product } from '../models/Product';
-
-
+import { Product } from '../models/product.model';
 
 // export const makeOrder = async (req: Request, res: Response) => {
 //   try {
@@ -52,7 +50,6 @@ import { Product } from '../models/Product';
 //   }
 // };
 
-
 export const makeOrder = async (req: Request, res: Response) => {
   const session = await mongoose.startSession();
 
@@ -63,36 +60,35 @@ export const makeOrder = async (req: Request, res: Response) => {
     const { items, addressId } = req.body;
 
     if (!items || items.length === 0) {
-      return res.status(400).json({ message: "Invalid order data" });
+      return res.status(400).json({ message: 'Invalid order data' });
     }
 
-    const addressObjectId = new Types.ObjectId(addressId as string)
+    const addressObjectId = new Types.ObjectId(addressId as string);
     const user = await User.findOne(
-      {_id: userId, "addresses._id": addressObjectId },    //Error
-      { "addresses.$": 1 }
+      { _id: userId, 'addresses._id': addressObjectId }, //Error
+      { 'addresses.$': 1 }
     ).lean();
 
     if (!user || !user.addresses || user.addresses.length === 0) {
-      return res.status(404).json({ message: "Address not found" });
+      return res.status(404).json({ message: 'Address not found' });
     }
 
     let totalAmount = 0;
     const orderItems = [];
     for (const item of items) {
-
       if (item.quantity <= 0 || !item.productId) {
         await session.abortTransaction();
-        return res.status(400).json({ message: "Invalid order data" });
+        return res.status(400).json({ message: 'Invalid order data' });
       }
 
       const product = await Product.findById(item.productId).session(session);
 
       if (!product) {
-        throw new Error("Product not found");
+        throw new Error('Product not found');
       }
 
       if (product.stock < item.quantity) {
-        throw new Error("Insufficient stock");
+        throw new Error('Insufficient stock');
       }
 
       const priceAtPurchase = product.price;
@@ -133,7 +129,7 @@ export const makeOrder = async (req: Request, res: Response) => {
     await session.abortTransaction();
 
     return res.status(500).json({
-      message: "Failed to create order",
+      message: 'Failed to create order',
     });
   } finally {
     session.endSession();
@@ -160,7 +156,6 @@ export const confirmOrder = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-
 
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
@@ -204,9 +199,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
   }
 };
 
-
 export const fetchMyOrders = async (req: Request, res: Response) => {
-
   try {
     const user = res.locals.user;
     if (!user) {
@@ -226,8 +219,6 @@ export const fetchMyOrders = async (req: Request, res: Response) => {
     });
   }
 };
-
-
 
 // export const getSellerOrders = async (req: Request, res: Response) => {
 //   try {
@@ -249,24 +240,22 @@ export const fetchMyOrders = async (req: Request, res: Response) => {
 //   }
 // };
 
-
-
 export const getSellerOrders = async (req: Request, res: Response) => {
   try {
     const sellerId = new Types.ObjectId(res.locals.user._id);
-    const orders = await Order.find({ "items.sellerId": sellerId })
-      .populate("userId", "name email")
-      .populate("items.productId", "name images addreses")
-      .sort({ createdAt: -1 }).select("+shippingAddress");
+    const orders = await Order.find({ 'items.sellerId': sellerId })
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name images addreses')
+      .sort({ createdAt: -1 })
+      .select('+shippingAddress');
 
-    const sellerOrders = orders.map((order) => {
+    const sellerOrders = orders.map(order => {
       const sellerItems = order.items.filter(
         (item: any) => item.sellerId.toString() === sellerId.toString()
       );
 
       const sellerTotal = sellerItems.reduce(
-        (sum: number, item: any) =>
-          sum + item.quantity * item.priceAtPurchase,
+        (sum: number, item: any) => sum + item.quantity * item.priceAtPurchase,
         0
       );
 
@@ -283,7 +272,7 @@ export const getSellerOrders = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: error instanceof Error ? error.message : 'Internal server error',
     });
   }
 };

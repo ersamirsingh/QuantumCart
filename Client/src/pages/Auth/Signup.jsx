@@ -5,8 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router";
-import { registerUser } from "../../store/slices/authSlice";
-import { checkAuth } from "../../store/slices/authSlice";
+import { registerUser, checkAuth } from "../../store/slices/auth.slice";
 import LoadingPage from "../../components/LoadingPage";
 
 const signupSchema = z.object({

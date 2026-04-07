@@ -1,17 +1,18 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { User } from '../models/User';
-import ValidateInfo from '../util/ValidateInfo';
+import { User } from '../models/user.model';
+import ValidateInfo from '../util/validInfo.util';
 import bcrypt from 'bcrypt';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/user.model';
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import { redisClient } from '../config/Redis';
-import { Seller } from '../models/Seller';
-import { IUser } from '../models/User';
+import { redisClient } from '../config/redis.config';
+import { Seller } from '../models/seller.model';
+import { IUser } from '../models/user.model';
 
-
-
-export const Register = async (req: Request, res: Response): Promise<Response> => {
+export const Register = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
   try {
     const { name, email, password, role } = req.body || {};
 
@@ -27,7 +28,10 @@ export const Register = async (req: Request, res: Response): Promise<Response> =
       return res.status(400).json({ message });
     }
 
-    const existedUser = await User.findOne({ email:email.toLowerCase().trim(), isDeleted:false});
+    const existedUser = await User.findOne({
+      email: email.toLowerCase().trim(),
+      isDeleted: false,
+    });
     if (existedUser) {
       return res.status(400).json({
         message: 'User already exists',
@@ -81,8 +85,6 @@ export const Register = async (req: Request, res: Response): Promise<Response> =
   }
 };
 
-
-
 export const Login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body || {};
@@ -93,7 +95,10 @@ export const Login = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim(), isDeleted:false });
+    const user = await User.findOne({
+      email: email.toLowerCase().trim(),
+      isDeleted: false,
+    });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid credential',
@@ -143,8 +148,6 @@ export const Login = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const Logout = async (req: Request, res: Response) => {
   try {
     const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
@@ -156,9 +159,8 @@ export const Logout = async (req: Request, res: Response) => {
     }
 
     const JWT_SECRET = process.env.JWT_SECRET as string;
-    if(!JWT_SECRET) 
-      throw new Error('Internal server error');
-    
+    if (!JWT_SECRET) throw new Error('Internal server error');
+
     const payload = jwt.verify(Token, JWT_SECRET) as JwtPayload;
     if (!payload) {
       return res.status(401).json({
@@ -181,8 +183,6 @@ export const Logout = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const deleteUser = async (req: Request, res: Response) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -193,17 +193,21 @@ export const deleteUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: 'User not found',
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(user._id,{ isDeleted: true },{ new: true, session });
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { isDeleted: true },
+      { new: true, session }
+    );
     if (!updatedUser) {
       await session.abortTransaction();
       session.endSession();
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: 'User not found',
       });
     }
 
@@ -215,24 +219,21 @@ export const deleteUser = async (req: Request, res: Response) => {
     await session.commitTransaction();
     session.endSession();
 
-    res.clearCookie("Token")
+    res.clearCookie('Token');
 
     return res.status(200).json({
       success: true,
-      message: "User account deleted successfully",
+      message: 'User account deleted successfully',
     });
-
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-    })
+      message: 'Internal server error',
+    });
   }
 };
-
-
 
 export const verifyUser = async (req: Request, res: Response) => {
   try {
@@ -268,4 +269,3 @@ export const verifyUser = async (req: Request, res: Response) => {
     });
   }
 };
-

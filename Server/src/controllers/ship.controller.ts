@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Order, OrderStatus } from '../models/Order';
-import { Shipment } from '../models/Shipment';
+import { Order, OrderStatus } from '../models/order.model';
+import { Shipment } from '../models/shipment.model';
 import { randomBytes } from 'crypto';
 import { Types } from 'mongoose';
 
@@ -14,8 +14,6 @@ function selectCourier(orderWeight: number): string {
   return 'FedEx';
 }
 
-
-
 function generateTrackingNumber(courierName: string): string {
   const prefix = courierName.slice(0, 3).toUpperCase();
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -24,18 +22,14 @@ function generateTrackingNumber(courierName: string): string {
   return `${prefix}-${date}-${uniqueId}`;
 }
 
-
-
 export const shipOrder = async (req: Request, res: Response) => {
-
-  try {    
-
+  try {
     const { orderWeight, orderId } = req.body || {};
     if (!orderId || !orderWeight) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    if(!Types.ObjectId.isValid(orderId)){
+    if (!Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({ message: 'Invalid order id' });
     }
 

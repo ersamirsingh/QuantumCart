@@ -6,8 +6,8 @@ import {
    ChevronLeft, ChevronRight, Package, Minus, Plus, AlertTriangle,
    Check, X, Share2, MessageCircle
 } from "lucide-react";
-import { getProductById, getProducts } from "../../store/slices/productSlice";
-import { addToCart } from "../../store/slices/cartSlice";
+import { getProductById, getProducts } from "../../store/slices/product.slice";
+import { addToCart } from "../../store/slices/cart.slice";
 
 /* ── Helpers ── */
 const formatPrice = (price) => `₹${Number(price).toLocaleString("en-IN")}`;

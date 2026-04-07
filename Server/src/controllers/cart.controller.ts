@@ -1,43 +1,40 @@
 import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
-import { Cart } from '../models/Cart';
-import { Product } from '../models/Product';
+import { Cart } from '../models/cart.model';
+import { Product } from '../models/product.model';
 import mongoose from 'mongoose';
-
-
-
 
 export const addToCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
     const productId = new Types.ObjectId(req.body.productId);
-    if (!Types.ObjectId.isValid(productId)){
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid productId' 
+    if (!Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid productId',
       });
     }
 
     const { quantity = 1 } = req.body || {};
     if (quantity <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Quantity must be greater than 0' 
+      return res.status(400).json({
+        success: false,
+        message: 'Quantity must be greater than 0',
       });
     }
 
     const product = await Product.findById(productId).select('stock');
     if (!product) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Product not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
       });
     }
 
     if (product.stock < quantity) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Insufficient stock' 
+      return res.status(400).json({
+        success: false,
+        message: 'Insufficient stock',
       });
     }
 
@@ -59,24 +56,25 @@ export const addToCart = async (req: Request, res: Response) => {
       );
     }
 
-    const cart = await Cart.findOne({ userId }).populate('items.productId', 'name price images').lean();
+    const cart = await Cart.findOne({ userId })
+      .populate('items.productId', 'name price images')
+      .lean();
 
     return res.status(200).json({
       success: true,
       data: cart,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' });
   }
 };
 
-
 export const removeFromCart = async (req: Request, res: Response) => {
-
   const session = await mongoose.startSession();
 
   try {
-
     session.startTransaction();
 
     const userId = new Types.ObjectId(res.locals.user._id);
@@ -115,21 +113,17 @@ export const removeFromCart = async (req: Request, res: Response) => {
     let updatedCart;
 
     if (cartItem.quantity > 1) {
-
       updatedCart = await Cart.findOneAndUpdate(
         { userId, 'items.productId': productObjectId },
         { $inc: { 'items.$.quantity': -1 } },
         { new: true, session }
       ).populate('items.productId', 'name price images');
-
     } else {
-
       updatedCart = await Cart.findOneAndUpdate(
         { userId },
         { $pull: { items: { productId: productObjectId } } },
         { new: true, session }
       ).populate('items.productId', 'name price images');
-
     }
 
     await session.commitTransaction();
@@ -139,21 +133,17 @@ export const removeFromCart = async (req: Request, res: Response) => {
       message: 'Cart updated successfully',
       data: { cart: updatedCart },
     });
-
   } catch (error) {
-
     await session.abortTransaction();
 
     return res.status(500).json({
       success: false,
       message: 'Internal server error',
     });
-
   } finally {
     session.endSession();
   }
 };
-
 
 export const clearCart = async (req: Request, res: Response) => {
   try {
@@ -175,15 +165,18 @@ export const clearCart = async (req: Request, res: Response) => {
       data: updatedCart,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' });
   }
 };
-
 
 export const getCart = async (req: Request, res: Response) => {
   try {
     const userId = new Types.ObjectId(res.locals.user._id);
-    const cart = await Cart.findOne({ userId }).populate('items.productId', 'name price images').lean();
+    const cart = await Cart.findOne({ userId })
+      .populate('items.productId', 'name price images')
+      .lean();
 
     if (!cart) {
       return res.status(200).json({
@@ -201,14 +194,14 @@ export const getCart = async (req: Request, res: Response) => {
       data: { ...cart, totalPrice },
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' });
   }
 };
 
-
 export const removeItemCompletely = async (req: Request, res: Response) => {
   try {
-
     const userId = new Types.ObjectId(res.locals.user._id);
 
     const productIdString = req.params.productId as string;
@@ -216,7 +209,7 @@ export const removeItemCompletely = async (req: Request, res: Response) => {
     if (!Types.ObjectId.isValid(productIdString)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid productId",
+        message: 'Invalid productId',
       });
     }
 
@@ -226,27 +219,24 @@ export const removeItemCompletely = async (req: Request, res: Response) => {
       { userId },
       { $pull: { items: { productId: productObjectId } } },
       { new: true }
-    ).populate("items.productId", "name price images");
+    ).populate('items.productId', 'name price images');
 
     if (!updatedCart) {
       return res.status(404).json({
         success: false,
-        message: "Cart not found",
+        message: 'Cart not found',
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Item removed from cart",
+      message: 'Item removed from cart',
       data: updatedCart,
     });
-
   } catch (error) {
-
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: 'Internal server error',
     });
-
   }
 };

@@ -7,9 +7,9 @@ import {
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { checkAuth, logoutUser, deleteUser } from "../../store/slices/authSlice";
-import { updatePassword, updateUser } from "../../store/slices/userSlice";
-import { registerSeller, removeSeller } from "../../store/slices/sellerSlice";
+import { checkAuth, logoutUser, deleteUser } from "../../store/slices/auth.slice";
+import { updatePassword, updateUser } from "../../store/slices/user.slice";
+import { registerSeller, removeSeller } from "../../store/slices/seller.slice";
 import { useNavigate } from "react-router";
 import LoadingPage from "../../components/LoadingPage";
 

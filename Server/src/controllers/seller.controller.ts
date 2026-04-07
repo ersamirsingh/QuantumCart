@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Seller } from '../models/Seller';
-import { User, UserRole } from '../models/User';
-import { Product } from '../models/Product';
+import { Seller } from '../models/seller.model';
+import { User, UserRole } from '../models/user.model';
+import { Product } from '../models/product.model';
 import mongoose from 'mongoose';
 
 export const sellerRegister = async (req: Request, res: Response) => {

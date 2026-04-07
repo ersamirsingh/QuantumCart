@@ -1,14 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import { redisClient } from '../config/Redis';
+import { redisClient } from '../config/redis.config';
 import jwt from 'jsonwebtoken';
-import { IPayload } from './authenticateUser';
-import { User, UserRole } from '../models/User';
-import { Seller } from '../models/Seller';
+import { IPayload } from './user.middleware';
+import { User, UserRole } from '../models/user.model';
+import { Seller } from '../models/seller.model';
 
-
-
-const authenticateSeller = async (req: Request, res: Response, next: NextFunction ): Promise<Response | void> => {
-
+const authenticateSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
   try {
     const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
     if (!Token) {

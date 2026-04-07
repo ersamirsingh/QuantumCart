@@ -1,13 +1,9 @@
 import { Request, Response } from 'express';
-import { Product } from '../models/Product';
-import { Review } from '../models/Review';
+import { Product } from '../models/product.model';
+import { Review } from '../models/review.model';
 import { Types } from 'mongoose';
 
-
-
-
 export const reviewProduct = async (req: Request, res: Response) => {
-
   try {
     const productId = new Types.ObjectId(req.params.productId as string);
     if (!Types.ObjectId.isValid(productId))
@@ -31,10 +27,10 @@ export const reviewProduct = async (req: Request, res: Response) => {
   }
 };
 
-
-
-export const updateReview = async (req: Request, res: Response): Promise<Response | void> => {
-
+export const updateReview = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   try {
     const productId = new Types.ObjectId(req.params.productId as string);
     if (!Types.ObjectId.isValid(productId))
@@ -56,8 +52,6 @@ export const updateReview = async (req: Request, res: Response): Promise<Respons
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
-
 
 export const removeReview = async (req: Request, res: Response) => {
   try {

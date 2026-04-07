@@ -12,7 +12,7 @@ import {
    clearCart,
    clearSuccessMessage,
    removeItemCompletely,
-} from "../../store/slices/cartSlice";
+} from "../../store/slices/cart.slice";
 import LoadingPage from "../../components/LoadingPage";
 
 const formatPrice = (price) => `₹${Number(price).toLocaleString("en-IN")}`;

@@ -1,16 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import { redisClient } from '../config/Redis';
-import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
-import { IPayload } from './authenticateUser';
-import { UserRole } from '../models/User';
+import { redisClient } from '../config/redis.config';
+import { User } from '../models/user.model';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
+export interface IPayload extends JwtPayload {
+  id: string;
+  email?: string;
+}
 
-
-const authenticateAdmin = async ( req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-
+const authenticateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
   try {
-    const Token = req.cookies.Token || req.headers.authorization?.split(' ')[1];
+    const Token =
+      req.cookies?.Token || req.headers.authorization?.split(' ')[1];
+
     if (!Token) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
@@ -24,6 +30,7 @@ const authenticateAdmin = async ( req: Request, res: Response, next: NextFunctio
       Token,
       process.env.JWT_SECRET as string
     ) as IPayload;
+
     if (typeof payload !== 'object' || !payload) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
@@ -33,12 +40,14 @@ const authenticateAdmin = async ( req: Request, res: Response, next: NextFunctio
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    if (user.role !== UserRole.ADMIN)
-      return res.status(401).json({ message: 'Unauthorized access' });
-
     res.locals.user = user;
+
     next();
-  } catch (error) {}
+  } catch (error) {
+    return res.status(500).json({
+      message: error instanceof Error ? error.message : 'Internal server error',
+    });
+  }
 };
 
-export default authenticateAdmin;
+export default authenticateUser;

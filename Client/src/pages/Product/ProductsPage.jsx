@@ -16,8 +16,8 @@ import {
    setPriceRangeFilter,
    setSortBy,
    resetFilters,
-} from "../../store/slices/productSlice";
-import { addToCart } from "../../store/slices/cartSlice";
+} from "../../store/slices/product.slice";
+import { addToCart } from "../../store/slices/cart.slice";
 
 /* ── Helpers ── */
 const formatPrice = (price) => `₹${Number(price).toLocaleString("en-IN")}`;

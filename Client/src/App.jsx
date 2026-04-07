@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth } from './store/slices/authSlice';
+import { checkAuth } from './store/slices/auth.slice';
 import {
   BrowserRouter as Router,
   Routes,
@@ -25,8 +25,6 @@ import CheckoutPage from './pages/Order/CheckoutPage.jsx';
 import OrdersPage from './pages/Order/OrdersPage.jsx';
 import ProductsPage from './pages/Product/ProductsPage.jsx';
 import DisplayProductPage from './pages/Product/DisplayProductPage.jsx';
-// import OrdersPage from './pages/Orders/OrdersPage';
-// import OrderDetailPage from './pages/Orders/OrderDetailPage';
 import SellerAnalytics from './pages/Seller/SellerAnalytics.jsx';
 import SellerOrderManagement from './pages/Seller/SellerOrdermanagement.jsx';
 

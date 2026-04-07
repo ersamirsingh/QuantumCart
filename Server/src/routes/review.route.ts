@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import authenticateUser from '../middleware/authenticateUser';
+import authenticateUser from '../middleware/user.middleware';
 import {
   reviewProduct,
   updateReview,
   removeReview,
-} from '../controllers/ReviewController';
+} from '../controllers/review.controller';
 
 const reviewRouter: Router = Router();
 

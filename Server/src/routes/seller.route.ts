@@ -1,16 +1,15 @@
 import { Router } from 'express';
-import authenticateUser from '../middleware/authenticateUser';
-import { sellerRegister, removeSeller } from '../controllers/SellerController';
-import authenticateSeller from '../middleware/authenticateSeller';
+import authenticateUser from '../middleware/user.middleware';
+import { sellerRegister, removeSeller } from '../controllers/seller.controller';
+import authenticateSeller from '../middleware/seller.middleware';
 import {
   addProduct,
   getProductById,
   getSellerProduct,
   removeProduct,
   updateProduct,
-} from '../controllers/ProductController';
-import { getSellerOrders } from '../controllers/OrderController';
-
+} from '../controllers/product.controller';
+import { getSellerOrders } from '../controllers/order.controller';
 
 const sellerRouter: Router = Router();
 
@@ -22,6 +21,5 @@ sellerRouter.get('/product/:productId', authenticateSeller, getProductById);
 sellerRouter.delete('/product/:productId', authenticateSeller, removeProduct);
 sellerRouter.patch('/product/:productId', authenticateSeller, updateProduct);
 sellerRouter.get('/orders', authenticateSeller, getSellerOrders);
-
 
 export default sellerRouter;

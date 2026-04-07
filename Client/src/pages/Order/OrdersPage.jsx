@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import {
   fetchOrders, cancelOrder, clearSuccessMessage,
-} from "../../store/slices/orderSlice";
+} from "../../store/slices/order.slice";
 import LoadingPage from "../../components/LoadingPage";
 
 const formatPrice = (p) => `₹${Number(p).toLocaleString("en-IN")}`;
